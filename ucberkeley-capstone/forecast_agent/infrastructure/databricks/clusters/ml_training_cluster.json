@@ -1,0 +1,42 @@
+{
+  "cluster_name": "ml-training-cluster",
+  "spark_version": "13.3.x-scala2.12",
+  "node_type_id": "i3.2xlarge",
+  "driver_node_type_id": "i3.2xlarge",
+  "autoscale": {
+    "min_workers": 2,
+    "max_workers": 8
+  },
+  "data_security_mode": "SINGLE_USER",
+  "runtime_engine": "STANDARD",
+  "autotermination_minutes": 60,
+  "enable_elastic_disk": true,
+  "spark_conf": {
+    "spark.databricks.unityCatalog.enabled": "true",
+    "spark.sql.adaptive.enabled": "true",
+    "spark.sql.adaptive.coalescePartitions.enabled": "true",
+    "spark.sql.adaptive.skewJoin.enabled": "true",
+    "spark.executor.memory": "40g",
+    "spark.executor.cores": "7",
+    "spark.task.cpus": "1",
+    "spark.default.parallelism": "112"
+  },
+  "custom_tags": {
+    "ResourceClass": "MLTraining",
+    "Purpose": "Full ML Pipeline Training with CV",
+    "Project": "Commodity Forecasting",
+    "Team": "DS210-Capstone",
+    "CostCenter": "Production",
+    "Workload": "TimeSeriesCV"
+  },
+  "spark_env_vars": {
+    "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+  },
+  "aws_attributes": {
+    "availability": "SPOT_WITH_FALLBACK",
+    "zone_id": "us-west-2a",
+    "first_on_demand": 1,
+    "spot_bid_price_percent": 100
+  },
+  "init_scripts": []
+}

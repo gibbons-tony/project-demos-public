@@ -1,0 +1,21 @@
+{
+  "run_name": "Test Parameter Optimizer - Coffee",
+  "tasks": [
+    {
+      "task_key": "test_optimizer",
+      "description": "Test parameter optimization for coffee with real forecast data",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/production/optimization/run_parameter_optimization.py",
+        "parameters": [
+          "--commodity", "coffee",
+          "--model-version", "arima_111_v1",
+          "--n-trials", "20"
+        ]
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 7200
+    }
+  ],
+  "timeout_seconds": 7200
+}

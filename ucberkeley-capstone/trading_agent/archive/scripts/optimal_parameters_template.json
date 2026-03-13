@@ -1,0 +1,182 @@
+{
+  "generated_at": "2025-11-10T00:00:00",
+  "commodity": "coffee",
+  "model": "sarimax_auto_weather_v1",
+  "grid_search_method": "coarse",
+  "note": "This is a template. Run parameter_grid_search_notebook.py to generate actual optimal values",
+
+  "parameters": {
+    "immediate_sale": {
+      "params": {
+        "min_batch_size": 5.0,
+        "sale_frequency_days": 7
+      },
+      "net_revenue": 0.0,
+      "metrics": {
+        "total_revenue": 0.0,
+        "total_costs": 0.0,
+        "n_trades": 0,
+        "avg_sale_price": 0.0
+      }
+    },
+
+    "equal_batch": {
+      "params": {
+        "batch_size": 0.25,
+        "frequency_days": 30
+      },
+      "net_revenue": 0.0,
+      "metrics": {
+        "total_revenue": 0.0,
+        "total_costs": 0.0,
+        "n_trades": 0,
+        "avg_sale_price": 0.0
+      }
+    },
+
+    "price_threshold": {
+      "params": {
+        "threshold_pct": 0.05,
+        "batch_fraction": 0.25,
+        "max_days_without_sale": 60
+      },
+      "net_revenue": 0.0,
+      "metrics": {
+        "total_revenue": 0.0,
+        "total_costs": 0.0,
+        "n_trades": 0,
+        "avg_sale_price": 0.0
+      },
+      "note": "These parameters are shared with price_threshold_predictive (matched pair)"
+    },
+
+    "moving_average": {
+      "params": {
+        "ma_period": 30,
+        "batch_fraction": 0.25,
+        "max_days_without_sale": 60
+      },
+      "net_revenue": 0.0,
+      "metrics": {
+        "total_revenue": 0.0,
+        "total_costs": 0.0,
+        "n_trades": 0,
+        "avg_sale_price": 0.0
+      },
+      "note": "These parameters are shared with moving_average_predictive (matched pair)"
+    },
+
+    "consensus": {
+      "params": {
+        "consensus_threshold": 0.70,
+        "min_return": 0.03,
+        "evaluation_day": 14
+      },
+      "net_revenue": 0.0,
+      "metrics": {
+        "total_revenue": 0.0,
+        "total_costs": 0.0,
+        "n_trades": 0,
+        "avg_sale_price": 0.0
+      },
+      "note": "storage_cost_pct_per_day and transaction_cost_pct come from commodity_config"
+    },
+
+    "expected_value": {
+      "params": {
+        "min_ev_improvement": 50,
+        "baseline_batch": 0.15,
+        "baseline_frequency": 10
+      },
+      "net_revenue": 0.0,
+      "metrics": {
+        "total_revenue": 0.0,
+        "total_costs": 0.0,
+        "n_trades": 0,
+        "avg_sale_price": 0.0
+      },
+      "note": "storage_cost_pct_per_day and transaction_cost_pct come from commodity_config"
+    },
+
+    "risk_adjusted": {
+      "params": {
+        "min_return": 0.03,
+        "max_uncertainty": 0.35,
+        "consensus_threshold": 0.60,
+        "evaluation_day": 14
+      },
+      "net_revenue": 0.0,
+      "metrics": {
+        "total_revenue": 0.0,
+        "total_costs": 0.0,
+        "n_trades": 0,
+        "avg_sale_price": 0.0
+      },
+      "note": "storage_cost_pct_per_day and transaction_cost_pct come from commodity_config"
+    }
+  },
+
+  "usage_instructions": {
+    "1_generate_optimal_params": "Run parameter_grid_search_notebook.py in Databricks",
+    "2_review_results": "Check net_revenue and metrics for each strategy",
+    "3_update_notebook": "Copy optimal parameter values to BASELINE_PARAMS and PREDICTION_PARAMS in multi-model notebook",
+    "4_matched_pairs": "Ensure price_threshold and moving_average params are shared with their predictive versions",
+    "5_validate": "Run full backtest with new parameters and compare to baseline performance"
+  },
+
+  "parameter_descriptions": {
+    "immediate_sale": {
+      "min_batch_size": "Minimum tons required to trigger a sale (prevents tiny sales)",
+      "sale_frequency_days": "Days between scheduled sales"
+    },
+    "equal_batch": {
+      "batch_size": "Fraction of inventory to sell each time (0.25 = 25%)",
+      "frequency_days": "Days between scheduled batch sales"
+    },
+    "price_threshold": {
+      "threshold_pct": "Price must be X% above 30-day MA to trigger sale (0.05 = 5%)",
+      "batch_fraction": "Base fraction of inventory to sell (adjusted by indicators)",
+      "max_days_without_sale": "Force sale if no sale in X days (prevents holding too long)"
+    },
+    "moving_average": {
+      "ma_period": "Moving average window in days for crossover detection",
+      "batch_fraction": "Base fraction of inventory to sell (adjusted by indicators)",
+      "max_days_without_sale": "Force sale if no sale in X days"
+    },
+    "consensus": {
+      "consensus_threshold": "Fraction of paths that must be bullish to defer sale (0.70 = 70%)",
+      "min_return": "Minimum expected return to justify waiting (0.03 = 3%)",
+      "evaluation_day": "Which forecast day to evaluate for consensus (14 = 14 days ahead)"
+    },
+    "expected_value": {
+      "min_ev_improvement": "Minimum $ improvement over selling today to justify waiting",
+      "baseline_batch": "Baseline batch size if no EV benefit (0.15 = 15%)",
+      "baseline_frequency": "Reference frequency (not used in scheduling, only for context)"
+    },
+    "risk_adjusted": {
+      "min_return": "Minimum expected return to justify waiting (0.03 = 3%)",
+      "max_uncertainty": "Maximum acceptable uncertainty (CV) to defer sale (0.35 = 35%)",
+      "consensus_threshold": "Fraction of paths bullish for high-confidence decisions (0.60 = 60%)",
+      "evaluation_day": "Which forecast day to evaluate for risk assessment"
+    }
+  },
+
+  "matched_pair_constraint": {
+    "description": "Some strategies come in baseline/predictive pairs that must share the same baseline parameters",
+    "pairs": [
+      {
+        "baseline": "price_threshold",
+        "predictive": "price_threshold_predictive",
+        "shared_params": ["threshold_pct", "batch_fraction", "max_days_without_sale"],
+        "additional_predictive_params": ["storage_cost_pct_per_day", "transaction_cost_pct"]
+      },
+      {
+        "baseline": "moving_average",
+        "predictive": "moving_average_predictive",
+        "shared_params": ["ma_period", "batch_fraction", "max_days_without_sale"],
+        "additional_predictive_params": ["storage_cost_pct_per_day", "transaction_cost_pct"]
+      }
+    ],
+    "rationale": "This ensures apples-to-apples comparison - the only difference should be prediction usage, not other parameters"
+  }
+}

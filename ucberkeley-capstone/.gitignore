@@ -1,0 +1,179 @@
+# =============================================================================
+# Data Files & Outputs
+# =============================================================================
+# Raw data files (too large for git)
+data/*.csv
+data/*.parquet
+data/*.json
+*.csv
+*.parquet
+
+# Forecast outputs (generated artifacts)
+forecast_agent/experiments/
+forecast_agent/dashboards/
+forecast_agent/production_forecasts/
+forecast_agent/trading_agent_forecast_*.json
+
+# =============================================================================
+# Temporary Scaffolding (clean up before committing!)
+# =============================================================================
+_scratch/
+*.draft.md
+*.tmp.md
+*_SCRATCH.md
+*.log
+*_output.log
+rebuild_output*.log
+*_BACKFILL_STATUS.md
+*_BACKFILL_FIX.md
+manifest.mf
+presentation_slides.html
+presentation_slides_index.html
+presentation_diagrams/
+content/
+
+# Test scripts for exploration (not needed in repo)
+test_connection.py
+discover_warehouses.py
+explore_tables.py
+explore_workspace.py
+query_predictions.py
+trading_agent/test_integration.py
+trading_agent/test_full_integration.py
+trading_agent/test_single_model_run.py
+
+# Test output directories
+trading_agent/output/
+
+# Archived old scripts (historical reference only, not tracked)
+research_agent/infrastructure/archive/
+
+# =============================================================================
+# Local Configuration & Guides
+# =============================================================================
+# AI assistant entry point (local only, regenerated per session)
+CLAUDE_GUIDE.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Databricks
+.databricks/
+
+# =============================================================================
+# Infrastructure & Credentials (NEVER COMMIT THESE!)
+# =============================================================================
+# Workspace-specific configuration (contains credentials)
+infra/
+.databrickscfg
+*.env
+.env.*
+.env
+research_agent/infrastructure/.env
+
+# Any file with hardcoded credentials
+*_credentials.py
+**/config/secrets.py
+
+# Project overview documentation (local development notes)
+project_overview/
+
+# Model artifacts (optional - uncomment if needed)
+# *.pkl
+# *.joblib
+# *.h5
+# mlruns/
+
+# =============================================================================
+# AWS Lambda Artifacts
+# =============================================================================
+# Lambda deployment packages (large zip files)
+*.zip
+all-lambdas.zip
+all-eventbridge.zip
+lambda_migration/
+
+# Lambda dependencies (installed at deploy time, not needed in git)
+research_agent/infrastructure/lambda/functions/*/package/
+research_agent/infrastructure/lambda/functions/*/boto*
+research_agent/infrastructure/lambda/functions/*/botocore*
+research_agent/infrastructure/lambda/functions/*/urllib3*
+research_agent/infrastructure/lambda/functions/*/requests*
+research_agent/infrastructure/lambda/functions/*/certifi*
+research_agent/infrastructure/lambda/functions/*/charset_normalizer*
+research_agent/infrastructure/lambda/functions/*/idna*
+research_agent/infrastructure/lambda/functions/*/s3transfer*
+research_agent/infrastructure/lambda/functions/*/jmespath*
+research_agent/infrastructure/lambda/functions/*/python_dateutil*
+research_agent/infrastructure/lambda/functions/*/six*
+research_agent/infrastructure/lambda/functions/*/DateTime*
+research_agent/infrastructure/lambda/functions/*/pytz*
+research_agent/infrastructure/lambda/functions/*/zope*
+research_agent/infrastructure/lambda/functions/*/pandas*
+research_agent/infrastructure/lambda/functions/*/numpy*
+research_agent/infrastructure/lambda/functions/*/bin/
+research_agent/infrastructure/lambda/functions/*/*.dist-info/
+research_agent/infrastructure/lambda/functions/*/.libs*/
+*.crc
+
+# Progress reports
+progress_reports/
+
+# Legacy Lambda dependencies (same patterns for legacy directory)
+research_agent/infrastructure/legacy/lambda_functions/*/package/
+
+# WhatsApp Lambda package dependencies (deployed separately)
+trading_agent/whatsapp/package/
+trading_agent/whatsapp/*.png
+
+# Temporary test files
+/tmp/*.py
+/tmp/*.sh
+/tmp/*.json
+/tmp/*.sql
+
+# Exclude unorganized legacy files
+research_agent/legacy_gdelt_files/
+
+# GDELT master file list (too large for GitHub - 113 MB)
+research_agent/gdelt_master_list/

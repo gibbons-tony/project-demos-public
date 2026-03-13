@@ -1,0 +1,20 @@
+[
+  "tests/test_src.py::test_bulk_predict_empty_list",
+  "tests/test_src.py::test_bulk_predict_endpoint",
+  "tests/test_src.py::test_bulk_predict_invalid_house",
+  "tests/test_src.py::test_bulk_predict_single_house",
+  "tests/test_src.py::test_health",
+  "tests/test_src.py::test_hello_missing",
+  "tests/test_src.py::test_hello_misspelled_param",
+  "tests/test_src.py::test_hello_reversed_param",
+  "tests/test_src.py::test_hello_valid",
+  "tests/test_src.py::test_not_found",
+  "tests/test_src.py::test_predict_endpoint",
+  "tests/test_src.py::test_predict_extra_field",
+  "tests/test_src.py::test_predict_invalid_latitude_negative",
+  "tests/test_src.py::test_predict_invalid_latitude_positive",
+  "tests/test_src.py::test_predict_invalid_longitude_negative",
+  "tests/test_src.py::test_predict_invalid_longitude_positive",
+  "tests/test_src.py::test_predict_missing_field",
+  "tests/test_src.py::test_predict_valid_input"
+]

@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  namespace: w255  # This will be replaced by kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-server
+  template:
+    metadata:
+      labels:
+        app: redis-server
+    spec:
+      containers:
+        - name: redis
+          image: redis:7
+          resources:
+            requests:
+              cpu: 300m       # Increased from 200m
+              memory: 750Mi   # Increased from 500Mi
+            limits:
+              cpu: 1000m
+              memory: 1500Mi  # Increased from 1000Mi
+          command:
+            - "redis-server"
+            - "--save"
+            - ""              # Disable RDB persistence
+            - "--maxmemory"
+            - "1gb"           # Set max memory usage
+            - "--maxmemory-policy"
+            - "allkeys-lru"   # Use LRU eviction policy
+            - "--appendonly"
+            - "no"
+            - "--no-appendfsync-on-rewrite"
+            - "yes"
+            - "--tcp-keepalive"
+            - "60"
+          env:
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+          ports:
+            - containerPort: 6379

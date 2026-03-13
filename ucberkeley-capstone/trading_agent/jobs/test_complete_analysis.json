@@ -1,0 +1,20 @@
+{
+  "run_name": "Test Complete Analysis Flow - Coffee (No Optimization)",
+  "tasks": [
+    {
+      "task_key": "complete_analysis",
+      "description": "Test complete analysis flow without optimization to verify workflow",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/production/scripts/run_complete_analysis_flow.py",
+        "parameters": [
+          "--commodity", "coffee",
+          "--skip-optimization"
+        ]
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 10800
+    }
+  ],
+  "timeout_seconds": 10800
+}

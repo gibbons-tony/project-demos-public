@@ -1,0 +1,36 @@
+{
+  "cluster_name": "ml-testing-cluster",
+  "spark_version": "13.3.x-scala2.12",
+  "node_type_id": "i3.xlarge",
+  "driver_node_type_id": "i3.xlarge",
+  "autoscale": {
+    "min_workers": 1,
+    "max_workers": 2
+  },
+  "data_security_mode": "SINGLE_USER",
+  "runtime_engine": "STANDARD",
+  "autotermination_minutes": 30,
+  "enable_elastic_disk": true,
+  "spark_conf": {
+    "spark.databricks.unityCatalog.enabled": "true",
+    "spark.sql.adaptive.enabled": "true",
+    "spark.sql.adaptive.coalescePartitions.enabled": "true"
+  },
+  "custom_tags": {
+    "ResourceClass": "MLTesting",
+    "Purpose": "ML Pipeline Testing and Validation",
+    "Project": "Commodity Forecasting",
+    "Team": "DS210-Capstone",
+    "CostCenter": "Development"
+  },
+  "spark_env_vars": {
+    "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+  },
+  "aws_attributes": {
+    "availability": "SPOT_WITH_FALLBACK",
+    "zone_id": "us-west-2a",
+    "first_on_demand": 1,
+    "spot_bid_price_percent": 100
+  },
+  "init_scripts": []
+}

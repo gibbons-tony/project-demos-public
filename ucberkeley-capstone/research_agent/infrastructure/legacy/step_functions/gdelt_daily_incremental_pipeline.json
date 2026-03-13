@@ -1,0 +1,218 @@
+{
+  "Comment": "Daily Incremental Pipeline - CSV directly to Bronze Parquet using SQS architecture. Skips JSONL intermediate step for efficiency. Self-healing: checks for missing files and processes them automatically.",
+  "StartAt": "SyncMasterListAndLoadQueue",
+  "States": {
+    "SyncMasterListAndLoadQueue": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-csv-sqs-loader",
+      "Comment": "Scans GDELT master list for new/missing files from last 90 days and loads CSV URLs to SQS queue",
+      "Parameters": {
+        "mode": "incremental"
+      },
+      "ResultPath": "$.loader_result",
+      "Next": "CheckIfFilesLoaded",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "LoaderFailed",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+
+    "CheckIfFilesLoaded": {
+      "Type": "Choice",
+      "Comment": "Check if any files were loaded to the queue",
+      "Choices": [
+        {
+          "Variable": "$.loader_result.files_loaded",
+          "NumericGreaterThan": 0,
+          "Next": "WaitForBronzeProcessing"
+        }
+      ],
+      "Default": "NoNewFilesToProcess"
+    },
+
+    "NoNewFilesToProcess": {
+      "Type": "Pass",
+      "Comment": "No new files found - all files are already processed",
+      "Result": {
+        "status": "complete",
+        "message": "No new files to process - all files up to date"
+      },
+      "End": true
+    },
+
+    "WaitForBronzeProcessing": {
+      "Type": "Wait",
+      "Comment": "Wait 30 seconds before first queue check to allow Lambda Event Source Mapping to start processing",
+      "Seconds": 30,
+      "Next": "CheckQueueProgress"
+    },
+
+    "CheckQueueProgress": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-queue-monitor",
+      "Comment": "Check SQS queue depth and processing progress",
+      "Parameters": {
+        "queue_url": "https://sqs.us-west-2.amazonaws.com/534150427458/groundtruth-gdelt-backfill-queue"
+      },
+      "ResultPath": "$.queue_status",
+      "Next": "EvaluateQueueStatus",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "MonitoringFailed",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+
+    "EvaluateQueueStatus": {
+      "Type": "Choice",
+      "Comment": "Determine if bronze processing is complete",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.queue_status.messages_in_queue",
+              "NumericEquals": 0
+            },
+            {
+              "Variable": "$.queue_status.messages_in_flight",
+              "NumericEquals": 0
+            }
+          ],
+          "Next": "BronzeProcessingComplete"
+        }
+      ],
+      "Default": "ContinueWaiting"
+    },
+
+    "ContinueWaiting": {
+      "Type": "Wait",
+      "Comment": "Wait 60 seconds before checking queue again",
+      "Seconds": 60,
+      "Next": "IncrementWaitCounter"
+    },
+
+    "IncrementWaitCounter": {
+      "Type": "Pass",
+      "Comment": "Track how many times we've waited to prevent infinite loops",
+      "Parameters": {
+        "loader_result.$": "$.loader_result",
+        "queue_status.$": "$.queue_status",
+        "wait_count.$": "States.MathAdd($.wait_count, 1)"
+      },
+      "Next": "CheckMaxWaitTime"
+    },
+
+    "CheckMaxWaitTime": {
+      "Type": "Choice",
+      "Comment": "Prevent infinite waiting - max 8 hours (480 checks at 60 seconds each)",
+      "Choices": [
+        {
+          "Variable": "$.wait_count",
+          "NumericGreaterThan": 480,
+          "Next": "MaxWaitTimeExceeded"
+        }
+      ],
+      "Default": "CheckQueueProgress"
+    },
+
+    "MaxWaitTimeExceeded": {
+      "Type": "Pass",
+      "Comment": "Processing taking too long - may need manual intervention",
+      "Result": {
+        "status": "timeout",
+        "message": "Bronze processing exceeded maximum wait time of 8 hours",
+        "recommendation": "Check Lambda Event Source Mapping and error logs"
+      },
+      "End": true
+    },
+
+    "BronzeProcessingComplete": {
+      "Type": "Pass",
+      "Comment": "All files processed to Bronze layer successfully",
+      "Parameters": {
+        "status": "success",
+        "files_loaded.$": "$.loader_result.files_loaded",
+        "files_already_processed.$": "$.loader_result.files_already_processed",
+        "total_files_checked.$": "$.loader_result.total_files_checked",
+        "bronze_complete": true,
+        "next_step": "silver_processing"
+      },
+      "ResultPath": "$.final_status",
+      "Next": "TriggerSilverProcessing"
+    },
+
+    "TriggerSilverProcessing": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-silver-transform",
+      "Comment": "Process Bronze to Silver (wide format table)",
+      "Parameters": {
+        "trigger": "bronze_complete",
+        "bronze_files_processed.$": "$.loader_result.files_loaded"
+      },
+      "ResultPath": "$.silver_result",
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SilverProcessingFailed",
+          "ResultPath": "$.silver_error"
+        }
+      ]
+    },
+
+    "LoaderFailed": {
+      "Type": "Pass",
+      "Comment": "Failed to load files to queue",
+      "Parameters": {
+        "status": "error",
+        "stage": "queue_loading",
+        "error.$": "$.error"
+      },
+      "End": true
+    },
+
+    "MonitoringFailed": {
+      "Type": "Pass",
+      "Comment": "Failed to monitor queue progress",
+      "Parameters": {
+        "status": "error",
+        "stage": "queue_monitoring",
+        "error.$": "$.error"
+      },
+      "End": true
+    },
+
+    "SilverProcessingFailed": {
+      "Type": "Pass",
+      "Comment": "Bronze processing succeeded but silver processing failed",
+      "Parameters": {
+        "status": "partial_success",
+        "bronze_status": "success",
+        "silver_status": "failed",
+        "error.$": "$.silver_error"
+      },
+      "End": true
+    }
+  }
+}

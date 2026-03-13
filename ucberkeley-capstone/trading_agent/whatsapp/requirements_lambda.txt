@@ -1,0 +1,13 @@
+# Lambda dependencies for WhatsApp trading recommendations
+# Install with: pip install -r requirements_lambda.txt -t ./package
+
+# HTTP requests for Databricks REST API
+requests==2.31.0
+
+# NumPy for array operations
+# Note: Use platform-specific wheel for Lambda (Python 3.11, x86_64)
+numpy==1.26.4
+
+# For QR code generation (local only, not needed in Lambda)
+# qrcode==7.4.2
+# pillow==10.1.0

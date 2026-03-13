@@ -1,0 +1,16 @@
+{
+  "run_name": "Diagnose Available Data",
+  "tasks": [
+    {
+      "task_key": "diagnose",
+      "description": "Check what prediction data is available in tables",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/production/scripts/check_available_data.py"
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 300
+    }
+  ],
+  "timeout_seconds": 300
+}

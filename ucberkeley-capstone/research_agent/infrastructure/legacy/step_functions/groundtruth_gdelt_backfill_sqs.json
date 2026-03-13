@@ -1,0 +1,112 @@
+{
+  "Comment": "SQS-based backfill - Query DynamoDB once, send to SQS, process via polling",
+  "StartAt": "CheckContinue",
+  "States": {
+    "CheckContinue": {
+      "Type": "Choice",
+      "Comment": "Check if this is a continuation or new backfill",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.continue",
+              "IsPresent": true
+            },
+            {
+              "Variable": "$.continue",
+              "BooleanEquals": true
+            }
+          ],
+          "Next": "SetInitialBatchCount"
+        }
+      ],
+      "Default": "InitializeBackfill"
+    },
+    "InitializeBackfill": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-processor",
+      "Comment": "Query DynamoDB ONCE, send missing files to SQS",
+      "Parameters": {
+        "mode": "initialize_backfill",
+        "start_date.$": "$.start_date",
+        "end_date.$": "$.end_date"
+      },
+      "ResultPath": "$.initResult",
+      "ResultSelector": {
+        "body.$": "States.StringToJson($.body)"
+      },
+      "Next": "SetInitialBatchCount"
+    },
+    "SetInitialBatchCount": {
+      "Type": "Pass",
+      "Parameters": {
+        "batches_processed": 0
+      },
+      "Next": "ProcessBatch"
+    },
+    "ProcessBatch": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-processor",
+      "Comment": "Poll SQS for messages and process (NO offset needed)",
+      "Parameters": {
+        "mode": "backfill"
+      },
+      "ResultPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.TooManyRequestsException",
+            "Lambda.ServiceException"
+          ],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 5,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Next": "ParseBatchResult"
+    },
+    "ParseBatchResult": {
+      "Type": "Pass",
+      "Parameters": {
+        "result_body.$": "States.StringToJson($.result.body)",
+        "batches_processed.$": "States.MathAdd($.batches_processed, 1)"
+      },
+      "Next": "CheckIfQueueEmpty"
+    },
+    "CheckIfQueueEmpty": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.result_body.messages_processed",
+          "NumericEquals": 0,
+          "Next": "BackfillComplete"
+        },
+        {
+          "Variable": "$.batches_processed",
+          "NumericGreaterThanEquals": 400,
+          "Next": "ChainNextExecution"
+        }
+      ],
+      "Default": "ProcessBatch"
+    },
+    "ChainNextExecution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:us-west-2:534150427458:stateMachine:groundtruth-gdelt-backfill",
+        "Input": {
+          "continue": true
+        }
+      },
+      "Next": "BackfillChained"
+    },
+    "BackfillChained": {
+      "Type": "Succeed",
+      "Comment": "Chained to next execution"
+    },
+    "BackfillComplete": {
+      "Type": "Succeed",
+      "Comment": "Queue is empty - all files processed"
+    }
+  }
+}

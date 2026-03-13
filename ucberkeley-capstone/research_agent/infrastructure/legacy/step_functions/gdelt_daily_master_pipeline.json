@@ -1,0 +1,129 @@
+{
+  "Comment": "Daily Master Pipeline - Orchestrates GDELT incremental processing through Bronze and Silver layers",
+  "StartAt": "GDELTIncrementalDownload",
+  "States": {
+    "GDELTIncrementalDownload": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Comment": "Self-healing GDELT download - checks DynamoDB and fills in any missing files",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-processor",
+        "Payload": {
+          "mode": "incremental"
+        }
+      },
+      "ResultPath": "$.gdeltResult",
+      "ResultSelector": {
+        "statusCode.$": "$.Payload.statusCode",
+        "body.$": "States.StringToJson($.Payload.body)"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "GDELTDownloadFailed",
+          "ResultPath": "$.error"
+        }
+      ],
+      "Next": "CheckGDELTSuccess"
+    },
+
+    "CheckGDELTSuccess": {
+      "Type": "Choice",
+      "Comment": "Check if GDELT download succeeded",
+      "Choices": [
+        {
+          "Variable": "$.gdeltResult.statusCode",
+          "NumericEquals": 200,
+          "Next": "CheckNewFiles"
+        }
+      ],
+      "Default": "GDELTDownloadFailed"
+    },
+
+    "CheckNewFiles": {
+      "Type": "Choice",
+      "Comment": "Check if any new files were downloaded",
+      "Choices": [
+        {
+          "Variable": "$.gdeltResult.body.processed_files",
+          "NumericGreaterThan": 0,
+          "Next": "TriggerBronzeSilverPipeline"
+        }
+      ],
+      "Default": "NoNewFilesToProcess"
+    },
+
+    "TriggerBronzeSilverPipeline": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Comment": "Trigger Bronze → Silver pipeline for new files and wait for completion",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:us-west-2:534150427458:stateMachine:gdelt-bronze-silver-pipeline",
+        "Input": {
+          "offset": 0,
+          "limit": 100,
+          "processed_so_far": 0,
+          "total_records": 0,
+          "silver_start_date.$": "$.gdeltResult.body.date_range.start_date",
+          "silver_end_date.$": "$.gdeltResult.body.date_range.end_date"
+        }
+      },
+      "ResultPath": "$.bronzeSilverResult",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 60,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "BronzeSilverFailed",
+          "ResultPath": "$.error"
+        }
+      ],
+      "Next": "DailyPipelineSuccess"
+    },
+
+    "NoNewFilesToProcess": {
+      "Type": "Succeed",
+      "Comment": "No new GDELT files to process today"
+    },
+
+    "DailyPipelineSuccess": {
+      "Type": "Succeed",
+      "Comment": "Daily pipeline completed: GDELT download → Bronze → Silver"
+    },
+
+    "GDELTDownloadFailed": {
+      "Type": "Fail",
+      "Comment": "GDELT incremental download failed",
+      "Error": "GDELTDownloadError",
+      "Cause": "GDELT Lambda invocation failed or returned non-200 status"
+    },
+
+    "BronzeSilverFailed": {
+      "Type": "Fail",
+      "Comment": "Bronze → Silver pipeline failed",
+      "Error": "BronzeSilverPipelineError",
+      "Cause": "Bronze or Silver transformation failed"
+    }
+  }
+}

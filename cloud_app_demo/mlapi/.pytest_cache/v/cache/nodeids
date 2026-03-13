@@ -1,0 +1,3 @@
+[
+  "tests/test_mlapi.py::test_predict"
+]

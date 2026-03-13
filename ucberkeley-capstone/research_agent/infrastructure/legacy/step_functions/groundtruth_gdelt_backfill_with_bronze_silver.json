@@ -1,0 +1,119 @@
+{
+  "Comment": "Historical backfill for GDELT data - processes date ranges in parallel then triggers Bronze → Silver pipeline",
+  "StartAt": "ProcessRanges",
+  "States": {
+    "ProcessRanges": {
+      "Type": "Map",
+      "ItemsPath": "$.date_ranges",
+      "MaxConcurrency": 5,
+      "Iterator": {
+        "StartAt": "InitializeOffset",
+        "States": {
+          "InitializeOffset": {
+            "Type": "Pass",
+            "Parameters": {
+              "start_date.$": "$.start_date",
+              "end_date.$": "$.end_date",
+              "offset": 0
+            },
+            "Next": "ProcessBatch"
+          },
+          "ProcessBatch": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-processor",
+            "Parameters": {
+              "mode": "backfill",
+              "start_date.$": "$.start_date",
+              "end_date.$": "$.end_date",
+              "offset.$": "$.offset"
+            },
+            "ResultPath": "$.lambda_result",
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "States.TaskFailed"
+                ],
+                "IntervalSeconds": 30,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
+            "Next": "ParseResult"
+          },
+          "ParseResult": {
+            "Type": "Pass",
+            "Parameters": {
+              "start_date.$": "$.start_date",
+              "end_date.$": "$.end_date",
+              "result.$": "States.StringToJson($.lambda_result.body)"
+            },
+            "Next": "UpdateOffset"
+          },
+          "UpdateOffset": {
+            "Type": "Pass",
+            "Parameters": {
+              "start_date.$": "$.start_date",
+              "end_date.$": "$.end_date",
+              "offset.$": "$.result.next_offset",
+              "remaining_files.$": "$.result.remaining_files"
+            },
+            "Next": "CheckRemainingFiles"
+          },
+          "CheckRemainingFiles": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.remaining_files",
+                "NumericGreaterThan": 0,
+                "Next": "ProcessBatch"
+              }
+            ],
+            "Default": "RangeComplete"
+          },
+          "RangeComplete": {
+            "Type": "Succeed"
+          }
+        }
+      },
+      "ResultPath": "$.backfill_results",
+      "Next": "PrepareBronzeSilverInput"
+    },
+    "PrepareBronzeSilverInput": {
+      "Type": "Pass",
+      "Comment": "Prepare input for Bronze → Silver pipeline",
+      "Parameters": {
+        "offset": 0,
+        "limit": 100,
+        "processed_so_far": 0,
+        "total_records": 0,
+        "silver_start_date.$": "$.date_ranges[0].start_date",
+        "silver_end_date.$": "$.date_ranges[-1].end_date"
+      },
+      "Next": "TriggerBronzeSilverPipeline"
+    },
+    "TriggerBronzeSilverPipeline": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Comment": "Trigger Bronze → Silver transformation pipeline and wait for completion",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:us-west-2:534150427458:stateMachine:gdelt-bronze-silver-pipeline",
+        "Input.$": "$"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Next": "AllProcessingComplete"
+    },
+    "AllProcessingComplete": {
+      "Type": "Succeed",
+      "Comment": "GDELT backfill and Bronze → Silver transformation complete"
+    }
+  }
+}

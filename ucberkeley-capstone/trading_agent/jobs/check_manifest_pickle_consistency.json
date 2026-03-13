@@ -1,0 +1,16 @@
+{
+  "run_name": "Check Manifest-Pickle Consistency",
+  "tasks": [
+    {
+      "task_key": "check_consistency",
+      "description": "Verify pickle files match manifest contents",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/jobs/check_manifest_pickle_consistency.py"
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 300
+    }
+  ],
+  "timeout_seconds": 300
+}

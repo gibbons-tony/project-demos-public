@@ -1,0 +1,13 @@
+{
+  "run_name": "Check What Optimizer Needs",
+  "tasks": [
+    {
+      "task_key": "check_needs",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/jobs/check_what_optimizer_needs.py"
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "timeout_seconds": 300
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+  .DS_Store
+  __pycache__/
+  *.pyc
+  .ipynb_checkpoints/
+  *.tar
+  *.tar.gz
+  *.bin
+  *.safetensors
+  .env
+  *.log
+  EOF
+
+exit
+>>
+ucberkeley-capstone/research_agent/infrastructure/lambda/deployment/deploy_all_functions.sh

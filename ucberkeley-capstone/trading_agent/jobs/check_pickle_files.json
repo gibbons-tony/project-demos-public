@@ -1,0 +1,16 @@
+{
+  "run_name": "Check Pickle Files and Map Data Flow",
+  "tasks": [
+    {
+      "task_key": "check_files",
+      "description": "Check if Step 2 pickle files exist and map complete data flow",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/jobs/check_pickle_files.py"
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 300
+    }
+  ],
+  "timeout_seconds": 300
+}

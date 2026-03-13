@@ -1,0 +1,21 @@
+# infra/deployment-redis.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  namespace: w255
+spec:
+  replicas: 1  # Only 1 replica as specified in requirements
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7  # Using redis:7 as specified in requirements
+        ports:
+        - containerPort: 6379

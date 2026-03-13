@@ -1,0 +1,2 @@
+# No requirements - using AWS Lambda Layer for awswrangler
+# Layer ARN will be attached during deployment

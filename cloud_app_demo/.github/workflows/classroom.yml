@@ -1,0 +1,476 @@
+---
+name: GitHub Classroom Workflow
+
+on:
+  - push
+  - workflow_dispatch
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    name: Autograding
+    runs-on: self-hosted
+    if: github.actor != 'github-classroom[bot]'
+
+    steps:
+      # Checkout
+      - uses: actions/checkout@v4
+
+      # Setup Dependencies
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::650251712107:role/AutograderStudentActionsRole
+          role-session-name: lab-student-autograder-run
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Setup kubeconfig
+        run: |
+          aws eks update-kubeconfig --name eks-datasci255-students
+
+      - name: lab_test_k8s
+        run: |
+          NAMESPACE=$(yq eval '.my-namespace' ./mlapi/submission-namespace.yaml 2>/dev/null)
+
+          if [[ -z "$NAMESPACE" || "$NAMESPACE" == "your-namespace-value-here" ]]; then
+            echo "❌ Namespace not set or set to default placeholder, please update submission-namespace.yaml"
+            exit 1
+          else
+            echo "✅ Namespace properly set to: $NAMESPACE"
+          fi
+
+          accumulator=0
+          total=0
+
+          assert() {
+            local message="$1"
+            local assertion="$2"
+
+            total=$((total + 1))
+
+            if eval "$assertion"; then
+              echo "✅ $message"
+            else
+              echo "❌ $message"
+              accumulator=$((accumulator + 1))
+            fi
+          }
+          # ==============================================================================
+
+          kubectl config set-context --current --namespace=${NAMESPACE}
+          # Check for init containers.
+          assert "Check for init-verify-redis-service-dns init container" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.initContainers[0].name' | grep -c '^\"init-verify-redis-service-dns\"$')\" -eq 1 ]]"
+          assert "Check for init-verify-redis-ready init container" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.initContainers[1].name' | grep -c '^\"init-verify-redis-ready\"$')\" -eq 1 ]]"
+
+          # Ensure that init containers don't use a weird base image, should use busybox
+          assert "Check for init-verify-redis-service-dns init container uses busybox" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.initContainers[0].image' | grep -c 'busybox')\" -eq 1 ]]"
+          assert "Check for init-verify-redis-ready init container uses busybox" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.initContainers[1].image' | grep -c 'busybox')\" -eq 1 ]]"
+
+          # Check for probes
+          assert "Check for readiness probe" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].readinessProbe' | grep -c null)\" -eq 0 ]]"
+          assert "Check for startup probe" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].startupProbe' | grep -c null)\" -eq 0 ]]"
+          assert "Check for liveness probe" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].livenessProbe' | grep -c null)\" -eq 0 ]]"
+
+          # Ensure probes are hitting /health
+          assert "Check readiness probe is hitting /lab/health" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].readinessProbe.httpGet.path' | grep -c '^\"/lab/health\"$')\" -eq 1 ]]"
+          assert "Check startup probe is hitting /lab/health" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].startupProbe.httpGet.path' | grep -c '^\"/lab/health\"$')\" -eq 1 ]]"
+          assert "Check liveness probe is hitting /lab/health" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].livenessProbe.httpGet.path' | grep -c '^\"/lab/health\"$')\" -eq 1 ]]"
+
+          # Ensure Environment Variable is present
+          assert "Check for redis URL Environment Variable" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].env[].name' | grep -c null)\" -eq 0 ]]"
+          assert "Check for correct number of replicas for redis" "[[ \"\$(kubectl get deployment redis-deployment -ojson | jq '.spec.replicas')\" -eq 1 ]]"
+          assert "Check that lab-prediction-service is correct type of service" "[[ \"\$(kubectl get service lab-prediction-service -ojson --namespace ${NAMESPACE} | jq '.spec.type' | grep -c 'ClusterIP')\" -eq 1 ]]"
+          assert "Check that redis-service is correct type of service" "[[ \"\$(kubectl get service redis-service -ojson --namespace ${NAMESPACE} | jq '.spec.type' | grep -c 'ClusterIP')\" -eq 1 ]]"
+
+          assert "Check that latest tag is not being used" "[[ \"\$(kubectl get deployment lab-api-deployment -ojson | jq '.spec.template.spec.containers[].image' | grep -c latest)\" -eq 0 ]]"
+          assert "Check for using container belonging to student" "[[ \"\$(kubectl get deployment lab-api-deployment -n ${NAMESPACE} -o json | jq -r '.spec.template.spec.containers[].image' | grep -c ${NAMESPACE})\" -gt 0 ]]"
+          # Final Verification
+          if [[ $accumulator -ne 0 ]]; then
+            echo "❌ $accumulator / $total tests failed"
+            exit 1
+          else
+            echo "✅ $total tests passed"
+            exit 0
+          fi
+
+      - name: lab_test_functionality
+        run: |
+          NAMESPACE=$(yq eval '.my-namespace' ./mlapi/submission-namespace.yaml 2>/dev/null)
+          if [[ -z "$NAMESPACE" || "$NAMESPACE" == "your-namespace-value-here" ]]; then
+            echo "❌ Namespace not set or set to default placeholder. Please update 'submission-namespace.yaml' with a valid namespace."
+            exit 1
+          else
+            echo "✅ Namespace properly set to: $NAMESPACE"
+          fi
+
+          accumulator=0
+          total=0
+
+          assert() {
+            local message="$1"
+            local assertion="$2"
+
+            if [[ -z "$message" || -z "$assertion" ]]; then
+              echo "❌ Assertion error: message or assertion is missing."
+              return 1
+            fi
+
+            total=$((total + 1))
+
+            # Evaluate the assertion condition
+            if eval "$assertion"; then
+              echo "✅ $message"
+            else
+              echo "❌ $message"
+              accumulator=$((accumulator + 1))
+            fi
+          }
+
+          # Get student namespace
+          kubectl config set-context --current --namespace=${NAMESPACE}
+
+          maxAttempts=10
+          currentTry=0
+          finished=false
+          while ! $finished; do
+            health_status=$(curl -o /dev/null -s -w "%{http_code}\n" -X GET "https://${NAMESPACE}.mids255.com/lab/health")
+            if [ $health_status == "200" ]; then
+              finished=true
+              echo "API is ready"
+            else
+              echo "API not responding yet"
+              currentTry=$((currentTry + 1))
+
+              if [ $currentTry -gt $maxAttempts ]; then
+                echo "❌ Exceeded max attempts of $maxAttempts to connect to prediction service"
+                exit 1
+              fi
+
+              sleep 1
+            fi
+          done
+
+          warmupRegularPayload='{ "MedInc":10, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":37.88, "Longitude":-122.23 }'
+          singleRegularPayload='{ "MedInc":8.3252, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":37.88, "Longitude":-122.23 }'
+          singleBadLatitudePayload='{ "MedInc":8.3252, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":-91, "Longitude":-122.23 }'
+          singleBadLongitudePayload='{ "MedInc":8.3252, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":-89, "Longitude":-182.23 }'
+
+          multiWarmupRegularPayload='{"houses":[{"MedInc":10, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":37.88, "Longitude":-122.23}]}'
+          multiRegularPayload='{"houses":[{"MedInc":8.3252, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":37.88, "Longitude":-122.23}]}'
+          multiBadLatitudePayload='{ "houses":[{"MedInc":8.3252, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":-91, "Longitude":-122.23}]}'
+          multiBadLongitudePayload='{"houses":[{"MedInc":8.3252, "HouseAge":42, "AveRooms":6.98, "AveBedrms":1.02, "Population":322, "AveOccup":2.55, "Latitude":-89, "Longitude":-182.23}]}'
+          multiPayload='{"houses": [{ "MedInc": 8.3252, "HouseAge": 42, "AveRooms": 6.98, "AveBedrms": 1.02, "Population": 322, "AveOccup": 2.55, "Latitude": 37.88, "Longitude": -122.23},{ "MedInc": 0, "HouseAge": 0, "AveRooms": 0, "AveBedrms": 0, "Population": 0, "AveOccup": 0, "Latitude": 0, "Longitude": 0}]}'
+
+          floatRegex="^[0-9]*.[0-9]*$"
+
+          echo "Warming Up Endpoints"
+          echo "================================================================================"
+
+          for run in {1..10}; do
+            curl -s -X 'POST' https://$NAMESPACE.mids255.com/lab/predict -L -H 'Content-Type: application/json' -d "$warmupRegularPayload"
+            curl -s -X 'POST' https://$NAMESPACE.mids255.com/lab/bulk-predict -L -H 'Content-Type: application/json' -d "$multiWarmupRegularPayload"
+          done
+
+          echo ""
+          echo "Lab2 Requirements"
+          echo "================================================================================"
+
+          assert "Returns 200 on /hello with param" "[[ 200 == \$(curl -o /dev/null -s -w '%{http_code}\n' -X GET https://${NAMESPACE}.mids255.com/lab/hello?name=Winegar) ]]"
+          assert "Returns 404 on /" "[[ 404 == \$(curl -o /dev/null -s -w '%{http_code}\n' -X GET https://${NAMESPACE}.mids255.com/lab/) ]]"
+          assert "Check openapi.json endpoint" "[[ 1 == \$(curl -s -X GET https://$NAMESPACE.mids255.com/lab/openapi.json | jq .openapi | grep -c 3.1.0) ]]"
+          assert "Check docs endpoint" "[[ 1 == \$(curl -s -X GET https://$NAMESPACE.mids255.com/lab/docs | grep -c '<title>FastAPI - Swagger UI</title>') ]]"
+          assert "Check predict endpoint for valid float from /predict" "[[ 0 == \$(curl -s -X 'POST' https://$NAMESPACE.mids255.com/lab/predict -L -H 'Content-Type: application/json' -d $singleRegularPayload | jq .prediction | grep -c $floatRegex) ]]"
+          assert "Check predict endpoint for invalid lat from /predict" "[[ 1 == \$(curl -s -X 'POST' https://\${NAMESPACE}.mids255.com/lab/predict -L -H 'Content-Type: application/json' -d \"\${singleBadLatitudePayload}\" | jq '.detail[0].type' | grep -c value_error) ]]"
+          assert "Check predict endpoint for invalid lon from /predict" "[[ 1 == \$(curl -s -X 'POST' https://\${NAMESPACE}.mids255.com/lab/predict -L -H 'Content-Type: application/json' -d \"\${singleBadLongitudePayload}\" | jq '.detail[0].type' | grep -c value_error) ]]"
+
+          now=$(date)
+          apiTime=$(curl -s -X GET https://${NAMESPACE}.mids255.com/lab/health | jq -r .time | xargs -I {} date -d {} +%s)
+
+          minLim=$(date -d '-1 minute' +%s)
+          maxLim=$(date -d '+1 minute' +%s)
+          total=$((total + 1))
+
+          if [[ "$apiTime" -ge "$minLim" ]] && [[ "$apiTime" -le "$maxLim" ]]; then
+            echo "✅ Health endpoint correctly defined"
+          else
+            accumulator=$((accumulator + 1))
+            echo "❌ Health Endpoint incorrectly defined"
+            echo "Currently it is:       $(date -d @$now)"
+            echo "API returned time:     $(date -d @$apiTime)"
+            echo "Expected range:        $(date -d @$minLim) - $(date -d @$maxLim)"
+          fi
+
+          echo ""
+          echo "Lab3 Requirements"
+          echo "================================================================================"
+          response=$(curl -s -X 'POST' "https://$NAMESPACE.mids255.com/lab/bulk-predict" -L -H 'Content-Type: application/json' -d "$multiPayload")
+          predictions_length=$(echo "$response" | jq '.predictions | length')
+          assert "Check predict endpoint for multikey predict" "[[ $predictions_length -eq 2 ]]"
+
+          # Check that key exists in Redis
+          echo "🧠 Checking for Redis keys"
+          kubectl port-forward svc/redis-service 6379:6379 >/dev/null &
+          pid=$!
+
+          # Ensure port-forward is terminated when the script exits or is interrupted
+          trap '{
+              echo "🔌 Terminating port-forward with PID $pid"
+              kill $pid
+          }' EXIT
+
+          maxAttempts=10
+          currentTry=0
+          # wait for $localport to become available
+          echo "⏳ Attempting to port-forward to redis-service on port 6379"
+          while ! nc -vz localhost 6379 >/dev/null 2>&1; do
+            echo "🔜 Waiting for port-forward to redis-service to be established..."
+            sleep 1
+
+            if [ $currentTry -ge $maxAttempts ]; then
+              echo "❌ Exceeded maximum attempts ($maxAttempts) to connect to redis-service via port-forward."
+              exit 1
+            fi
+
+            currentTry=$((currentTry + 1))
+          done
+          echo "🔀 Successfully port-forwarded to redis-service"
+
+          # Clear all keys from Redis and wait briefly to ensure completion
+          echo "🗑️ Flushing all keys in Redis..."
+          redis-cli -h localhost -p 6379 flushall >/dev/null
+          sleep 2
+
+          # Trigger a prediction to populate Redis
+          echo "🌐 Sending request to /predict endpoint to populate Redis cache..."
+          curl -s -o /dev/null -X 'POST' "https://$NAMESPACE.mids255.com/lab/predict" -L -H 'Content-Type: application/json' -d "$singleRegularPayload"
+
+          # Assertion to check if the Redis entry was created
+          cache_count=$(redis-cli -h localhost -p 6379 KEYS '*' | grep -c 'w255-cache-prediction:' --max-count=1)
+          assert "Check that entry exists in Redis after hitting /predict" "[[ 1 == $cache_count ]]"
+
+          # Display all keys in Redis
+          echo "📂 Contents of Redis cache:"
+          redis-cli -h localhost -p 6379 KEYS '*'
+
+          # Final Verification
+          if [ $accumulator -ne 0 ]; then
+            echo "❌ $accumulator / $total tests failed"
+            exit 1
+          else
+            echo "✅ $total tests passed"
+            exit 0
+          fi
+
+      - name: project_test_k8s
+        run: |
+          NAMESPACE=$(yq eval '.my-namespace' ./mlapi/submission-namespace.yaml 2>/dev/null)
+
+          if [[ -z "$NAMESPACE" || "$NAMESPACE" == "your-namespace-value-here" ]]; then
+              echo "❌ Namespace not set or set to default placeholder, please update submission-namespace.yaml"
+              exit 1
+          else
+              echo "✅ Namespace properly set to: $NAMESPACE"
+          fi
+
+          accumulator=0
+          total=0
+
+          assert() {
+              local message="$1"
+              local assertion="$2"
+
+              total=$((total + 1))
+
+              if eval "$assertion"; then
+                  echo "✅ $message"
+              else
+                  echo "❌ $message"
+                  accumulator=$((accumulator + 1))
+              fi
+          }
+          # ==============================================================================
+
+          kubectl config set-context --current --namespace=${NAMESPACE}
+          # Check for init containers.
+          assert "Check for init-verify-redis-service-dns init container" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.initContainers[0].name' | grep -c '^\"init-verify-redis-service-dns\"$')\" -eq 1 ]]"
+          assert "Check for init-verify-redis-ready init container" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.initContainers[1].name' | grep -c '^\"init-verify-redis-ready\"$')\" -eq 1 ]]"
+
+          # Ensure that init containers don't use a weird base image, should use busybox
+          assert "Check for init-verify-redis-service-dns init container uses busybox" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.initContainers[0].image' | grep -c 'busybox')\" -eq 1 ]]"
+          assert "Check for init-verify-redis-ready init container uses busybox" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.initContainers[1].image' | grep -c 'busybox')\" -eq 1 ]]"
+
+          # Check for probes
+          assert "Check for readiness probe" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].readinessProbe' | grep -c null)\" -eq 0 ]]"
+          assert "Check for startup probe" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].startupProbe' | grep -c null)\" -eq 0 ]]"
+          assert "Check for liveness probe" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].livenessProbe' | grep -c null)\" -eq 0 ]]"
+
+          # Ensure probes are hitting /health
+          assert "Check readiness probe is hitting /project/health" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].readinessProbe.httpGet.path' | grep -c '^\"/project/health\"$')\" -eq 1 ]]"
+          assert "Check startup probe is hitting /project/health" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].startupProbe.httpGet.path' | grep -c '^\"/project/health\"$')\" -eq 1 ]]"
+          assert "Check liveness probe is hitting /project/health" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].livenessProbe.httpGet.path' | grep -c '^\"/project/health\"$')\" -eq 1 ]]"
+
+          # Ensure Environment Variable is present
+          assert "Check for redis URL Environment Variable" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].env[].name' | grep -c null)\" -eq 0 ]]"
+          assert "Check for correct number of replicas for redis" "[[ \"\$(kubectl get deployment redis-deployment -ojson | jq '.spec.replicas')\" -eq 1 ]]"
+          assert "Check that project-prediction-service is correct type of service" "[[ \"\$(kubectl get service project-prediction-service -ojson --namespace ${NAMESPACE} | jq '.spec.type' | grep -c 'ClusterIP')\" -eq 1 ]]"
+          assert "Check that redis-service is correct type of service" "[[ \"\$(kubectl get service redis-service -ojson --namespace ${NAMESPACE} | jq '.spec.type' | grep -c 'ClusterIP')\" -eq 1 ]]"
+
+          assert "Check that latest tag is not being used" "[[ \"\$(kubectl get deployment project-api-deployment -ojson | jq '.spec.template.spec.containers[].image' | grep -c latest)\" -eq 0 ]]"
+          assert "Check for using container belonging to student" "[[ \"\$(kubectl get deployment project-api-deployment -n ${NAMESPACE} -o json | jq -r '.spec.template.spec.containers[].image' | grep -c ${NAMESPACE})\" -gt 0 ]]"
+          # Final Verification
+          if [[ $accumulator -ne 0 ]]; then
+              echo "❌ $accumulator / $total tests failed"
+              exit 1
+          else
+              echo "✅ $total tests passed"
+              exit 0
+          fi
+
+      - name: project_test_functionality
+        run: |
+          NAMESPACE=$(yq eval '.my-namespace' ./mlapi/submission-namespace.yaml 2>/dev/null)
+          if [[ -z "$NAMESPACE" || "$NAMESPACE" == "your-namespace-value-here" ]]; then
+              echo "❌ Namespace not set or set to default placeholder. Please update 'submission-namespace.yaml' with a valid namespace."
+              exit 1
+          else
+              echo "✅ Namespace properly set to: $NAMESPACE"
+          fi
+
+          accumulator=0
+          total=0
+
+          assert() {
+              local message="$1"
+              local assertion="$2"
+
+              if [[ -z "$message" || -z "$assertion" ]]; then
+                  echo "❌ Assertion error: message or assertion is missing."
+                  return 1
+              fi
+
+              total=$((total + 1))
+
+              # Evaluate the assertion condition
+              if eval "$assertion"; then
+                  echo "✅ $message"
+              else
+                  echo "❌ $message"
+                  accumulator=$((accumulator + 1))
+              fi
+          }
+
+          # Get student namespace
+          kubectl config set-context --current --namespace=${NAMESPACE}
+
+          maxAttempts=10
+          currentTry=0
+          finished=false
+          while ! $finished; do
+              health_status=$(curl -o /dev/null -s -w "%{http_code}\n" -X GET "https://${NAMESPACE}.mids255.com/project/health")
+              if [ $health_status == "200" ]; then
+                  finished=true
+                  echo "API is ready"
+              else
+                  echo "API not responding yet"
+                  currentTry=$((currentTry + 1))
+
+                  if [ $currentTry -gt $maxAttempts ]; then
+                      echo "❌ Exceeded max attempts of $maxAttempts to connect to prediction service"
+                      exit 1
+                  fi
+
+                  sleep 1
+              fi
+          done
+
+          floatRegex="^[0-9]*.[0-9]*$"
+
+          echo "Warming Up Endpoints"
+          echo "================================================================================"
+          payload='{"text": ["string"]}'
+          for run in {1..10}; do
+              curl -s -X 'POST' https://$NAMESPACE.mids255.com/project/bulk-predict -L -H 'Content-Type: application/json' -d "$payload"
+          done
+
+          echo ""
+          echo "Project Requirements"
+          echo "================================================================================"
+
+          assert "Check openapi.json endpoint" "[[ 1 == \$(curl -s -X GET https://$NAMESPACE.mids255.com/project/openapi.json | jq .openapi | grep -c 3.1.0) ]]"
+          assert "Check docs endpoint" "[[ 1 == \$(curl -s -X GET https://$NAMESPACE.mids255.com/project/docs | grep -c '<title>FastAPI - Swagger UI</title>') ]]"
+          assert "Check health endpoint" "[[ 1 == \$(curl -s -X GET https://$NAMESPACE.mids255.com/project/health | grep -c healthy) ]]"
+
+          response=$(curl -s -X 'POST' https://$NAMESPACE.mids255.com/project/bulk-predict -L -H 'Content-Type: application/json' -d "$payload")
+          predictions_length=$(echo "$response" | jq '.predictions[] | length')
+          assert "Check bulk-predict endpoint for sentiments count" "[[ $predictions_length -eq 2 ]]"
+          predictions_positive=$(echo "$response" | jq '.predictions[][] | select(.label=="POSITIVE").score')
+          assert "Check bulk-predict endpoint for valid float for positive class" "[[ \"$predictions_positive\" =~ $floatRegex ]]"
+          predictions_negative=$(echo "$response" | jq '.predictions[][] | select(.label=="NEGATIVE").score')
+          assert "Check bulk-predict endpoint for valid float for negative class" "[[ \"$predictions_negative\" =~ $floatRegex ]]"
+
+          # Check that key exists in Redis
+          echo "🧠 Checking for Redis keys"
+          kubectl port-forward svc/redis-service 6379:6379 >/dev/null &
+          pid=$!
+
+          # Ensure port-forward is terminated when the script exits or is interrupted
+          trap '{
+              echo "🔌 Terminating port-forward with PID $pid"
+              kill $pid
+          }' EXIT
+
+          maxAttempts=10
+          currentTry=0
+          # wait for $localport to become available
+          echo "⏳ Attempting to port-forward to redis-service on port 6379"
+          while ! nc -vz localhost 6379 >/dev/null 2>&1; do
+              echo "🔜 Waiting for port-forward to redis-service to be established..."
+              sleep 1
+
+              if [ $currentTry -ge $maxAttempts ]; then
+                  echo "❌ Exceeded maximum attempts ($maxAttempts) to connect to redis-service via port-forward."
+                  exit 1
+              fi
+
+              currentTry=$((currentTry + 1))
+          done
+          echo "🔀 Successfully port-forwarded to redis-service"
+
+          # Clear all keys from Redis and wait briefly to ensure completion
+          echo "🗑️ Flushing all keys in Redis..."
+          redis-cli -h localhost -p 6379 flushall >/dev/null
+          sleep 2
+
+          # Trigger a prediction to populate Redis
+          echo "🌐 Sending request to /project/bulk-predict endpoint to populate Redis cache..."
+          curl -s -o /dev/null -X 'POST' "https://$NAMESPACE.mids255.com/project/bulk-predict" -L -H 'Content-Type: application/json' -d "$payload"
+
+          # Assertion to check if the Redis entry was created
+          cache_count=$(redis-cli -h localhost -p 6379 KEYS '*' | grep -c 'fastapi-cache-project::' --max-count=1)
+          assert "Check that entry exists in Redis after hitting /project/bulk-predict" "[[ 1 == $cache_count ]]"
+
+          # Display all keys in Redis
+          echo "📂 Contents of Redis cache:"
+          redis-cli -h localhost -p 6379 KEYS '*'
+
+          # Final Verification
+          if [ $accumulator -ne 0 ]; then
+              echo "❌ $accumulator / $total tests failed"
+              exit 1
+          else
+              echo "✅ $total tests passed"
+              exit 0
+          fi

@@ -1,0 +1,22 @@
+# Lambda deployment artifacts
+*.zip
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Test/response files
+response.json
+test_*.json
+
+# Virtual environments
+package/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,605 @@
+[
+  {
+    "region": "Antigua_Guatemala",
+    "commodity": "Coffee",
+    "latitude": 14.5600,
+    "longitude": -90.7347,
+    "description": "Antigua coffee region, volcanic highlands",
+    "elevation_m": 1500,
+    "country": "Guatemala"
+  },
+  {
+    "region": "Argentina_Country_Average",
+    "commodity": "Sugar",
+    "latitude": -27.4650,
+    "longitude": -58.9867,
+    "description": "Tucumán and northern sugar regions",
+    "elevation_m": 450,
+    "country": "Argentina"
+  },
+  {
+    "region": "Bahia_Brazil",
+    "commodity": "Coffee",
+    "latitude": -14.7900,
+    "longitude": -39.2800,
+    "description": "Bahia coffee plateau",
+    "elevation_m": 800,
+    "country": "Brazil"
+  },
+  {
+    "region": "Belarus_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 53.9006,
+    "longitude": 27.5590,
+    "description": "Central Belarus sugar beet region",
+    "elevation_m": 200,
+    "country": "Belarus"
+  },
+  {
+    "region": "Belgium_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 50.8503,
+    "longitude": 4.3517,
+    "description": "Belgian sugar beet region",
+    "elevation_m": 100,
+    "country": "Belgium"
+  },
+  {
+    "region": "Bugisu_Uganda",
+    "commodity": "Coffee",
+    "latitude": 1.0500,
+    "longitude": 34.3500,
+    "description": "Mt. Elgon slopes, Arabica coffee",
+    "elevation_m": 1600,
+    "country": "Uganda"
+  },
+  {
+    "region": "CAR_Country_Average",
+    "commodity": "Coffee",
+    "latitude": 6.6111,
+    "longitude": 20.9394,
+    "description": "Central African Republic coffee regions",
+    "elevation_m": 600,
+    "country": "Central African Republic"
+  },
+  {
+    "region": "Cajamarca_Peru",
+    "commodity": "Coffee",
+    "latitude": -7.1500,
+    "longitude": -78.5000,
+    "description": "Cajamarca highlands coffee",
+    "elevation_m": 2200,
+    "country": "Peru"
+  },
+  {
+    "region": "Central_Highlands_Vietnam",
+    "commodity": "Coffee",
+    "latitude": 12.6667,
+    "longitude": 108.0500,
+    "description": "Dak Lak province, Robusta coffee center",
+    "elevation_m": 500,
+    "country": "Vietnam"
+  },
+  {
+    "region": "Chiapas_Mexico",
+    "commodity": "Coffee",
+    "latitude": 15.1872,
+    "longitude": -92.4703,
+    "description": "Chiapas coffee highlands",
+    "elevation_m": 1300,
+    "country": "Mexico"
+  },
+  {
+    "region": "Copan_Honduras",
+    "commodity": "Coffee",
+    "latitude": 14.8400,
+    "longitude": -88.7800,
+    "description": "Copán coffee region",
+    "elevation_m": 1100,
+    "country": "Honduras"
+  },
+  {
+    "region": "Costa_Rica_Country_Average",
+    "commodity": "Coffee",
+    "latitude": 9.7489,
+    "longitude": -83.7534,
+    "description": "Central Valley coffee region",
+    "elevation_m": 1200,
+    "country": "Costa Rica"
+  },
+  {
+    "region": "Cote_dIvoire_Country_Average",
+    "commodity": "Coffee",
+    "latitude": 7.5400,
+    "longitude": -5.5471,
+    "description": "Ivorian coffee belt",
+    "elevation_m": 300,
+    "country": "Côte d'Ivoire"
+  },
+  {
+    "region": "Cuba_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 21.5218,
+    "longitude": -77.7812,
+    "description": "Central Cuba sugar cane region",
+    "elevation_m": 50,
+    "country": "Cuba"
+  },
+  {
+    "region": "Eje_Cafetero_Colombia",
+    "commodity": "Coffee",
+    "latitude": 4.8133,
+    "longitude": -75.6961,
+    "description": "Colombian Coffee Triangle (Caldas, Risaralda, Quindío)",
+    "elevation_m": 1400,
+    "country": "Colombia"
+  },
+  {
+    "region": "Escuintla_Guatemala",
+    "commodity": "Sugar",
+    "latitude": 14.3053,
+    "longitude": -90.7850,
+    "description": "Escuintla sugar cane coastal plain",
+    "elevation_m": 300,
+    "country": "Guatemala"
+  },
+  {
+    "region": "Espirito_Santo_Brazil",
+    "commodity": "Coffee",
+    "latitude": -19.1834,
+    "longitude": -40.3089,
+    "description": "Espírito Santo Conilon coffee region",
+    "elevation_m": 700,
+    "country": "Brazil"
+  },
+  {
+    "region": "France_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "description": "Northern France sugar beet",
+    "elevation_m": 150,
+    "country": "France"
+  },
+  {
+    "region": "Germany_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 52.5200,
+    "longitude": 13.4050,
+    "description": "German sugar beet belt",
+    "elevation_m": 100,
+    "country": "Germany"
+  },
+  {
+    "region": "Guangxi_China",
+    "commodity": "Sugar",
+    "latitude": 23.7247,
+    "longitude": 108.3210,
+    "description": "Guangxi sugar cane region",
+    "elevation_m": 200,
+    "country": "China"
+  },
+  {
+    "region": "Guinea_Country_Average",
+    "commodity": "Coffee",
+    "latitude": 9.6412,
+    "longitude": -13.5784,
+    "description": "Guinea coffee region",
+    "elevation_m": 450,
+    "country": "Guinea"
+  },
+  {
+    "region": "Hokkaido_Japan",
+    "commodity": "Sugar",
+    "latitude": 43.0642,
+    "longitude": 141.3469,
+    "description": "Hokkaido sugar beet",
+    "elevation_m": 100,
+    "country": "Japan"
+  },
+  {
+    "region": "Huila_Colombia",
+    "commodity": "Coffee",
+    "latitude": 2.5355,
+    "longitude": -75.5277,
+    "description": "Huila highlands coffee",
+    "elevation_m": 1700,
+    "country": "Colombia"
+  },
+  {
+    "region": "Iran_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 35.6892,
+    "longitude": 51.3890,
+    "description": "Iranian sugar beet regions",
+    "elevation_m": 1200,
+    "country": "Iran"
+  },
+  {
+    "region": "Jalisco_Mexico",
+    "commodity": "Sugar",
+    "latitude": 20.6597,
+    "longitude": -103.3496,
+    "description": "Jalisco sugar cane",
+    "elevation_m": 1500,
+    "country": "Mexico"
+  },
+  {
+    "region": "Java_Indonesia",
+    "commodity": "Coffee",
+    "latitude": -7.6145,
+    "longitude": 110.7122,
+    "description": "Central Java coffee estates",
+    "elevation_m": 900,
+    "country": "Indonesia"
+  },
+  {
+    "region": "Java_Indonesia_Sugar",
+    "commodity": "Sugar",
+    "latitude": -7.2500,
+    "longitude": 112.7500,
+    "description": "East Java sugar cane",
+    "elevation_m": 50,
+    "country": "Indonesia"
+  },
+  {
+    "region": "Karnataka_India",
+    "commodity": "Coffee",
+    "latitude": 13.3409,
+    "longitude": 75.7138,
+    "description": "Coorg (Kodagu) coffee region",
+    "elevation_m": 1000,
+    "country": "India"
+  },
+  {
+    "region": "Kenya_Country_Average",
+    "commodity": "Coffee",
+    "latitude": -0.7893,
+    "longitude": 36.8219,
+    "description": "Central highlands coffee (Nyeri, Kirinyaga)",
+    "elevation_m": 1700,
+    "country": "Kenya"
+  },
+  {
+    "region": "Kerala_India",
+    "commodity": "Coffee",
+    "latitude": 11.8745,
+    "longitude": 75.3704,
+    "description": "Wayanad coffee region",
+    "elevation_m": 900,
+    "country": "India"
+  },
+  {
+    "region": "Khon_Kaen_Thailand",
+    "commodity": "Sugar",
+    "latitude": 16.4322,
+    "longitude": 102.8236,
+    "description": "Khon Kaen sugar cane",
+    "elevation_m": 200,
+    "country": "Thailand"
+  },
+  {
+    "region": "KwaZulu_Natal_South_Africa",
+    "commodity": "Sugar",
+    "latitude": -29.8587,
+    "longitude": 31.0218,
+    "description": "KwaZulu-Natal sugar belt",
+    "elevation_m": 100,
+    "country": "South Africa"
+  },
+  {
+    "region": "Laos_Country_Average",
+    "commodity": "Coffee",
+    "latitude": 15.8700,
+    "longitude": 105.8050,
+    "description": "Bolaven Plateau coffee",
+    "elevation_m": 1200,
+    "country": "Laos"
+  },
+  {
+    "region": "Louisiana_USA",
+    "commodity": "Sugar",
+    "latitude": 30.2241,
+    "longitude": -92.0198,
+    "description": "Louisiana sugar cane belt",
+    "elevation_m": 10,
+    "country": "United States"
+  },
+  {
+    "region": "Maharashtra_India",
+    "commodity": "Sugar",
+    "latitude": 17.6599,
+    "longitude": 75.9064,
+    "description": "Maharashtra sugar belt",
+    "elevation_m": 600,
+    "country": "India"
+  },
+  {
+    "region": "Minas_Gerais_Brazil",
+    "commodity": "Coffee",
+    "latitude": -20.3155,
+    "longitude": -45.4108,
+    "description": "Sul de Minas coffee region",
+    "elevation_m": 1000,
+    "country": "Brazil"
+  },
+  {
+    "region": "Nakhon_Sawan_Thailand",
+    "commodity": "Sugar",
+    "latitude": 15.7047,
+    "longitude": 100.1218,
+    "description": "Nakhon Sawan sugar cane",
+    "elevation_m": 30,
+    "country": "Thailand"
+  },
+  {
+    "region": "Negros_Occidental_Philippines",
+    "commodity": "Sugar",
+    "latitude": 10.6588,
+    "longitude": 122.9780,
+    "description": "Negros sugar island",
+    "elevation_m": 100,
+    "country": "Philippines"
+  },
+  {
+    "region": "Netherlands_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 52.3702,
+    "longitude": 4.8952,
+    "description": "Dutch sugar beet",
+    "elevation_m": 5,
+    "country": "Netherlands"
+  },
+  {
+    "region": "Nicaragua_Country_Average",
+    "commodity": "Coffee",
+    "latitude": 13.1939,
+    "longitude": -85.2072,
+    "description": "Nicaraguan highlands coffee (Matagalpa, Jinotega)",
+    "elevation_m": 1200,
+    "country": "Nicaragua"
+  },
+  {
+    "region": "Nile_Delta_Egypt_Beet",
+    "commodity": "Sugar",
+    "latitude": 30.8025,
+    "longitude": 31.0566,
+    "description": "Nile Delta sugar beet",
+    "elevation_m": 10,
+    "country": "Egypt"
+  },
+  {
+    "region": "North_China_Beet",
+    "commodity": "Sugar",
+    "latitude": 41.2917,
+    "longitude": 122.7764,
+    "description": "Northeastern China sugar beet",
+    "elevation_m": 50,
+    "country": "China"
+  },
+  {
+    "region": "Poland_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 52.2297,
+    "longitude": 21.0122,
+    "description": "Polish sugar beet belt",
+    "elevation_m": 100,
+    "country": "Poland"
+  },
+  {
+    "region": "Punjab_Pakistan",
+    "commodity": "Sugar",
+    "latitude": 30.3753,
+    "longitude": 69.3451,
+    "description": "Punjab sugar cane",
+    "elevation_m": 200,
+    "country": "Pakistan"
+  },
+  {
+    "region": "Qena_Egypt_Cane",
+    "commodity": "Sugar",
+    "latitude": 26.1551,
+    "longitude": 32.7160,
+    "description": "Upper Egypt sugar cane (Qena, Luxor)",
+    "elevation_m": 80,
+    "country": "Egypt"
+  },
+  {
+    "region": "Queensland_Australia",
+    "commodity": "Sugar",
+    "latitude": -20.9176,
+    "longitude": 142.7028,
+    "description": "Queensland sugar coast",
+    "elevation_m": 20,
+    "country": "Australia"
+  },
+  {
+    "region": "Red_River_Valley_USA",
+    "commodity": "Sugar",
+    "latitude": 47.9253,
+    "longitude": -97.0329,
+    "description": "Red River Valley sugar beet (ND/MN)",
+    "elevation_m": 270,
+    "country": "United States"
+  },
+  {
+    "region": "Rwenzori_Mountains_Uganda",
+    "commodity": "Coffee",
+    "latitude": 0.3880,
+    "longitude": 29.9189,
+    "description": "Rwenzori foothills Arabica",
+    "elevation_m": 1500,
+    "country": "Uganda"
+  },
+  {
+    "region": "Sao_Paulo_Brazil",
+    "commodity": "Coffee",
+    "latitude": -22.2150,
+    "longitude": -48.7450,
+    "description": "São Paulo coffee region (Mogiana)",
+    "elevation_m": 900,
+    "country": "Brazil"
+  },
+  {
+    "region": "Sao_Paulo_Brazil_Sugar",
+    "commodity": "Sugar",
+    "latitude": -22.9068,
+    "longitude": -47.0653,
+    "description": "São Paulo sugar belt (Ribeirão Preto)",
+    "elevation_m": 600,
+    "country": "Brazil"
+  },
+  {
+    "region": "Sidamo_Ethiopia",
+    "commodity": "Coffee",
+    "latitude": 6.3000,
+    "longitude": 38.5000,
+    "description": "Sidamo coffee highlands",
+    "elevation_m": 1900,
+    "country": "Ethiopia"
+  },
+  {
+    "region": "Sindh_Pakistan",
+    "commodity": "Sugar",
+    "latitude": 25.3960,
+    "longitude": 68.3578,
+    "description": "Sindh sugar cane",
+    "elevation_m": 50,
+    "country": "Pakistan"
+  },
+  {
+    "region": "South_Florida_USA",
+    "commodity": "Sugar",
+    "latitude": 26.7153,
+    "longitude": -80.9534,
+    "description": "Florida Everglades sugar cane",
+    "elevation_m": 5,
+    "country": "United States"
+  },
+  {
+    "region": "Sumatra_Indonesia",
+    "commodity": "Coffee",
+    "latitude": 2.4833,
+    "longitude": 98.9167,
+    "description": "North Sumatra coffee (Aceh, Gayo)",
+    "elevation_m": 1200,
+    "country": "Indonesia"
+  },
+  {
+    "region": "Tambov_Russia",
+    "commodity": "Sugar",
+    "latitude": 52.7213,
+    "longitude": 41.4522,
+    "description": "Tambov Oblast sugar beet",
+    "elevation_m": 150,
+    "country": "Russia"
+  },
+  {
+    "region": "Tanzania_Country_Average",
+    "commodity": "Coffee",
+    "latitude": -3.3869,
+    "longitude": 36.6830,
+    "description": "Kilimanjaro/Arusha coffee",
+    "elevation_m": 1500,
+    "country": "Tanzania"
+  },
+  {
+    "region": "Turkey_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 39.9334,
+    "longitude": 32.8597,
+    "description": "Central Anatolia sugar beet",
+    "elevation_m": 900,
+    "country": "Turkey"
+  },
+  {
+    "region": "UK_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 52.2053,
+    "longitude": 0.1218,
+    "description": "East England sugar beet (Norfolk, Suffolk)",
+    "elevation_m": 50,
+    "country": "United Kingdom"
+  },
+  {
+    "region": "Ukraine_Country_Average",
+    "commodity": "Sugar",
+    "latitude": 49.4444,
+    "longitude": 32.0597,
+    "description": "Ukrainian sugar beet belt",
+    "elevation_m": 150,
+    "country": "Ukraine"
+  },
+  {
+    "region": "Uttar_Pradesh_India",
+    "commodity": "Sugar",
+    "latitude": 26.8467,
+    "longitude": 80.9462,
+    "description": "UP sugar cane belt",
+    "elevation_m": 120,
+    "country": "India"
+  },
+  {
+    "region": "Valle_del_Cauca_Colombia",
+    "commodity": "Sugar",
+    "latitude": 3.4516,
+    "longitude": -76.5320,
+    "description": "Cauca Valley sugar cane",
+    "elevation_m": 1000,
+    "country": "Colombia"
+  },
+  {
+    "region": "Veracruz_Mexico",
+    "commodity": "Coffee",
+    "latitude": 19.5400,
+    "longitude": -96.9100,
+    "description": "Veracruz coffee highlands",
+    "elevation_m": 1200,
+    "country": "Mexico"
+  },
+  {
+    "region": "Veracruz_Mexico_Sugar",
+    "commodity": "Sugar",
+    "latitude": 18.8800,
+    "longitude": -96.9200,
+    "description": "Veracruz sugar cane",
+    "elevation_m": 100,
+    "country": "Mexico"
+  },
+  {
+    "region": "Voronezh_Russia",
+    "commodity": "Sugar",
+    "latitude": 51.6720,
+    "longitude": 39.1843,
+    "description": "Voronezh Oblast sugar beet",
+    "elevation_m": 150,
+    "country": "Russia"
+  },
+  {
+    "region": "Yirgacheffe_Ethiopia",
+    "commodity": "Coffee",
+    "latitude": 6.1631,
+    "longitude": 38.1975,
+    "description": "Yirgacheffe coffee region",
+    "elevation_m": 2000,
+    "country": "Ethiopia"
+  },
+  {
+    "region": "Yunnan_China_Coffee",
+    "commodity": "Coffee",
+    "latitude": 22.7703,
+    "longitude": 100.9770,
+    "description": "Yunnan coffee region (Pu'er, Baoshan)",
+    "elevation_m": 1100,
+    "country": "China"
+  },
+  {
+    "region": "Yunnan_China_Sugar",
+    "commodity": "Sugar",
+    "latitude": 24.3772,
+    "longitude": 103.7071,
+    "description": "Yunnan sugar cane",
+    "elevation_m": 800,
+    "country": "China"
+  }
+]

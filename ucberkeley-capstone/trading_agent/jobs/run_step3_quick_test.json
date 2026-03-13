@@ -1,0 +1,20 @@
+{
+  "run_name": "Step 3: Quick Parameter Optimization Test (50 trials)",
+  "tasks": [
+    {
+      "task_key": "optimize_all_models",
+      "description": "Run parameter optimization with fewer trials to test for completion",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/production/optimization/run_parameter_optimization.py",
+        "parameters": [
+          "--commodity", "coffee",
+          "--trials", "50"
+        ]
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 7200
+    }
+  ],
+  "timeout_seconds": 7200
+}

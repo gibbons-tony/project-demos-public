@@ -1,0 +1,20 @@
+{
+  "run_name": "Test Backtest Workflow - Backtest Only",
+  "tasks": [
+    {
+      "task_key": "backtest_workflow",
+      "description": "Test backtest workflow orchestrator in backtest-only mode",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/production/run_backtest_workflow.py",
+        "parameters": [
+          "--mode", "backtest-only",
+          "--commodity", "coffee"
+        ]
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 7200
+    }
+  ],
+  "timeout_seconds": 7200
+}

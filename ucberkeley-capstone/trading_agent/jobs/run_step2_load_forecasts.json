@@ -1,0 +1,17 @@
+{
+  "run_name": "Step 2: Load Forecast Predictions (Coffee)",
+  "tasks": [
+    {
+      "task_key": "load_forecasts",
+      "description": "Load real forecast predictions from commodity.forecast.distributions into predictions_coffee table",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/production/scripts/load_forecast_predictions.py",
+        "parameters": ["--commodity", "coffee"]
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 3600
+    }
+  ],
+  "timeout_seconds": 3600
+}

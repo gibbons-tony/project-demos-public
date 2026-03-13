@@ -1,0 +1,16 @@
+{
+  "run_name": "Check Step 1-2 Outputs",
+  "tasks": [
+    {
+      "task_key": "check_outputs",
+      "description": "Check if step 1 and 2 outputs exist",
+      "spark_python_task": {
+        "python_file": "/Workspace/Repos/Project_Git/ucberkeley-capstone/trading_agent/jobs/check_step1_2_outputs.py"
+      },
+      "existing_cluster_id": "1111-041828-yeu2ff2q",
+      "libraries": [],
+      "timeout_seconds": 300
+    }
+  ],
+  "timeout_seconds": 300
+}

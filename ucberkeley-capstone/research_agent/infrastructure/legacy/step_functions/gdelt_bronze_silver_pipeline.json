@@ -1,0 +1,248 @@
+{
+  "Comment": "GDELT Bronze → Silver Transform Pipeline - Orchestrates incremental processing with batching",
+  "StartAt": "BronzeTransformBatch",
+  "States": {
+    "BronzeTransformBatch": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Comment": "Convert JSONL to Bronze Parquet (adaptive batch size)",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-bronze-transform",
+        "Payload": {
+          "mode": "incremental",
+          "offset.$": "$.offset",
+          "limit.$": "$.limit"
+        }
+      },
+      "ResultPath": "$.bronzeResult",
+      "ResultSelector": {
+        "statusCode.$": "$.Payload.statusCode",
+        "body.$": "States.StringToJson($.Payload.body)"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.Timeout", "Lambda.TooManyRequestsException"],
+          "Next": "HandleTimeout",
+          "ResultPath": "$.error"
+        },
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "BronzeTransformFailed",
+          "ResultPath": "$.error"
+        }
+      ],
+      "Next": "CheckBronzeSuccess"
+    },
+
+    "HandleTimeout": {
+      "Type": "Choice",
+      "Comment": "Reduce batch size based on current limit",
+      "Choices": [
+        {
+          "Variable": "$.limit",
+          "NumericGreaterThan": 50,
+          "Next": "RetryWithBatch50"
+        },
+        {
+          "Variable": "$.limit",
+          "NumericGreaterThan": 20,
+          "Next": "RetryWithBatch20"
+        },
+        {
+          "Variable": "$.limit",
+          "NumericGreaterThan": 5,
+          "Next": "RetryWithBatch5"
+        }
+      ],
+      "Default": "BronzeTransformFailed"
+    },
+
+    "RetryWithBatch50": {
+      "Type": "Pass",
+      "Comment": "Retry with batch size 50",
+      "Parameters": {
+        "offset.$": "$.offset",
+        "limit": 50,
+        "processed_so_far.$": "$.processed_so_far",
+        "total_records.$": "$.total_records",
+        "silver_start_date.$": "$.silver_start_date",
+        "silver_end_date.$": "$.silver_end_date"
+      },
+      "Next": "BronzeTransformBatch"
+    },
+
+    "RetryWithBatch20": {
+      "Type": "Pass",
+      "Comment": "Retry with batch size 20",
+      "Parameters": {
+        "offset.$": "$.offset",
+        "limit": 20,
+        "processed_so_far.$": "$.processed_so_far",
+        "total_records.$": "$.total_records",
+        "silver_start_date.$": "$.silver_start_date",
+        "silver_end_date.$": "$.silver_end_date"
+      },
+      "Next": "BronzeTransformBatch"
+    },
+
+    "RetryWithBatch5": {
+      "Type": "Pass",
+      "Comment": "Retry with batch size 5 (minimum)",
+      "Parameters": {
+        "offset.$": "$.offset",
+        "limit": 5,
+        "processed_so_far.$": "$.processed_so_far",
+        "total_records.$": "$.total_records",
+        "silver_start_date.$": "$.silver_start_date",
+        "silver_end_date.$": "$.silver_end_date"
+      },
+      "Next": "BronzeTransformBatch"
+    },
+
+    "CheckBronzeSuccess": {
+      "Type": "Choice",
+      "Comment": "Check if Bronze transform succeeded",
+      "Choices": [
+        {
+          "Variable": "$.bronzeResult.statusCode",
+          "NumericEquals": 200,
+          "Next": "CheckRemainingFiles"
+        }
+      ],
+      "Default": "BronzeTransformFailed"
+    },
+
+    "CheckRemainingFiles": {
+      "Type": "Choice",
+      "Comment": "Check if there are more files to process",
+      "Choices": [
+        {
+          "Variable": "$.bronzeResult.body.remaining_files",
+          "NumericGreaterThan": 0,
+          "Next": "PrepareNextBatch"
+        }
+      ],
+      "Default": "AllBronzeComplete"
+    },
+
+    "PrepareNextBatch": {
+      "Type": "Pass",
+      "Comment": "Prepare parameters for next batch",
+      "Parameters": {
+        "offset.$": "$.bronzeResult.body.next_offset",
+        "limit.$": "$.limit",
+        "processed_so_far.$": "States.MathAdd($.processed_so_far, $.bronzeResult.body.processed_files)",
+        "total_records.$": "States.MathAdd($.total_records, $.bronzeResult.body.total_records)"
+      },
+      "Next": "WaitBetweenBatches"
+    },
+
+    "WaitBetweenBatches": {
+      "Type": "Wait",
+      "Comment": "Wait 5 seconds between batches to avoid throttling",
+      "Seconds": 5,
+      "Next": "BronzeTransformBatch"
+    },
+
+    "AllBronzeComplete": {
+      "Type": "Pass",
+      "Comment": "All Bronze files processed, prepare for Silver",
+      "Parameters": {
+        "message": "Bronze transform complete",
+        "total_files_processed.$": "States.MathAdd($.processed_so_far, $.bronzeResult.body.processed_files)",
+        "total_records.$": "States.MathAdd($.total_records, $.bronzeResult.body.total_records)",
+        "silver_date_range": {
+          "start_date.$": "$.silver_start_date",
+          "end_date.$": "$.silver_end_date"
+        }
+      },
+      "ResultPath": "$.bronzeSummary",
+      "Next": "SilverTransform"
+    },
+
+    "SilverTransform": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Comment": "Create Silver wide-format aggregations",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-west-2:534150427458:function:gdelt-silver-transform",
+        "Payload": {
+          "start_date.$": "$.bronzeSummary.silver_date_range.start_date",
+          "end_date.$": "$.bronzeSummary.silver_date_range.end_date",
+          "batch_size_days": 7
+        }
+      },
+      "ResultPath": "$.silverResult",
+      "ResultSelector": {
+        "statusCode.$": "$.Payload.statusCode",
+        "body.$": "States.StringToJson($.Payload.body)"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SilverTransformFailed",
+          "ResultPath": "$.error"
+        }
+      ],
+      "Next": "CheckSilverSuccess"
+    },
+
+    "CheckSilverSuccess": {
+      "Type": "Choice",
+      "Comment": "Check if Silver transform succeeded",
+      "Choices": [
+        {
+          "Variable": "$.silverResult.statusCode",
+          "NumericEquals": 200,
+          "Next": "PipelineSuccess"
+        }
+      ],
+      "Default": "SilverTransformFailed"
+    },
+
+    "PipelineSuccess": {
+      "Type": "Succeed",
+      "Comment": "Bronze → Silver pipeline completed successfully"
+    },
+
+    "BronzeTransformFailed": {
+      "Type": "Fail",
+      "Comment": "Bronze transform failed",
+      "Error": "BronzeTransformError",
+      "Cause": "Bronze Lambda invocation failed or returned non-200 status"
+    },
+
+    "SilverTransformFailed": {
+      "Type": "Fail",
+      "Comment": "Silver transform failed",
+      "Error": "SilverTransformError",
+      "Cause": "Silver Lambda invocation failed or returned non-200 status"
+    }
+  }
+}

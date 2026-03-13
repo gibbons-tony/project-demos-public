@@ -1,0 +1,89 @@
+# Caramanta - UC Berkeley MIDS Capstone
+# Technical Documentation Site
+
+title: "Caramanta"
+description: "Commodity Trading Agent with AI-Powered Forecasting"
+baseurl: ""
+url: "https://connor-watson-berkeley.github.io/ucberkeley-capstone"
+repository: "Connor-Watson-Berkeley/ucberkeley-capstone"
+
+# Theme
+remote_theme: just-the-docs/just-the-docs
+color_scheme: light
+
+# Navigation
+nav_enabled: true
+nav_sort: case_sensitive
+search_enabled: true
+search:
+  heading_level: 2
+  previews: 3
+  preview_words_before: 5
+  preview_words_after: 10
+  tokenizer_separator: /[\s/]+/
+
+# Footer
+footer_content: "UC Berkeley Master of Information and Data Science (MIDS) Capstone Project 2024"
+
+# Heading anchors
+heading_anchors: true
+
+# Aux links for the upper right navigation
+aux_links:
+  "View on GitHub":
+    - "https://github.com/gibbonstony/ucberkeley-capstone"
+  "Live System":
+    - "https://studiomios.wixstudio.com/caramanta"
+
+# External navigation links
+nav_external_links:
+  - title: Research Agent
+    url: research_agent/README.html
+    hide_icon: false
+  - title: Forecast Agent
+    url: forecast_agent/README.html
+    hide_icon: false
+  - title: Trading Agent
+    url: trading_agent/README.html
+    hide_icon: false
+
+# Mermaid diagrams support
+mermaid:
+  version: "9.1.3"
+
+# Plugins
+plugins:
+  - jekyll-relative-links
+  - jekyll-seo-tag
+
+# Relative links configuration
+relative_links:
+  enabled: true
+  collections: false
+
+# Markdown
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+# Exclude from processing
+exclude:
+  - README.md
+  - LICENSE
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .env
+  - venv/
+  - __pycache__/
+  - "*.pyc"
+  - ".git/"
+  - ".github/"
+
+# Include specific files
+include:
+  - _pages
+  - docs

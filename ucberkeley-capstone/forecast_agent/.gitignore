@@ -1,0 +1,133 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Development files (NOT FOR PRODUCTION)
+experiments/
+dashboards/
+deprecated/
+project_overview/
+*.log
+quick_eval.py  # Local sanity check script (not for production)
+
+# Generated outputs
+production_forecasts/
+trading_agent_forecast.json
+model_registry.parquet
+*.parquet
+*.html
+
+# Data files
+data/
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Environments
+.env
+.env.local
+
+# Databricks secrets
+.databrickscfg
+*.pem
+
+# AWS credentials
+.aws/credentials
+.aws/config
+**/aws_credentials.json
+**/aws_config.json
+
+# API keys and secrets
+.env
+.env.*
+!.env.example
+.secrets
+secrets.yaml
+secrets.json
+**/credentials.json
+**/service-account*.json
+**/*_credentials.json
+**/*-key.json
+**/*.key
+
+# SSH and GPG keys
+id_rsa
+id_rsa.pub
+id_dsa
+id_dsa.pub
+id_ecdsa
+id_ecdsa.pub
+id_ed25519
+id_ed25519.pub
+*.gpg
+*.asc
+
+# OAuth tokens
+.token
+.tokens
+oauth_token*
+
+# Password and secret files
+passwords.txt
+secrets.txt
+*.password
+*.secret
+
+# Keep docs tracked
+!docs/
+!docs/**/*.md
+!docs/**/*.png
+
+# Keep security configuration tracked
+!.secrets.baseline

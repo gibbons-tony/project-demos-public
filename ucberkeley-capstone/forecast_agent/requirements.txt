@@ -1,0 +1,25 @@
+# ml_lib Dependencies (Minimal - PySpark on Databricks)
+# Python 3.8+
+
+# Note: PySpark, pandas, numpy are pre-installed on Databricks
+# This file is primarily for local development/testing
+
+# Local Development (if needed)
+# pyspark==3.5.4        # Already on Databricks
+# pandas==2.2.3          # Already on Databricks
+# numpy==1.26.4          # Already on Databricks
+
+# Testing
+pytest==8.3.4
+pytest-cov==6.0.0
+
+# Code Quality
+black==24.10.0
+flake8==7.1.1
+mypy==1.13.0
+pre-commit==4.0.1
+detect-secrets==1.5.0
+
+# Databricks Integration (for local testing)
+databricks-sql-connector==3.5.0
+databricks-connect==15.4.2

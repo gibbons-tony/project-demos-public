@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Agent - Data Pipeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --research-green: #22c55d;
+            --research-green-dark: #16a34a;
+            --research-green-light: #86efac;
+            --dark-bg: #1a202c;
+            --medium-bg: #2d3748;
+            --light-bg: #f7fafc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--medium-bg) 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            border-bottom: 4px solid var(--research-green);
+            padding-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 56px;
+            color: var(--dark-bg);
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .agent-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--research-green) 0%, var(--research-green-dark) 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(34, 197, 93, 0.3);
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: #718096;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border-left: 4px solid var(--research-green);
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--research-green-dark);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-title {
+            font-size: 36px;
+            color: var(--dark-bg);
+            margin: 60px 0 30px 0;
+            border-left: 6px solid var(--research-green);
+            padding-left: 25px;
+            font-weight: 700;
+        }
+
+        .pipeline-diagram {
+            margin: 50px 0;
+            background: var(--light-bg);
+            padding: 40px;
+            border-radius: 20px;
+            overflow-x: auto;
+        }
+
+        .pipeline-stage {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-stage:hover {
+            border-color: var(--research-green);
+            box-shadow: 0 8px 25px rgba(34, 197, 93, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .stage-number {
+            background: linear-gradient(135deg, var(--research-green) 0%, var(--research-green-dark) 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .stage-title {
+            flex: 1;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-bg);
+            margin-left: 15px;
+        }
+
+        .stage-status {
+            background: var(--research-green-light);
+            color: var(--research-green-dark);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stage-status.manual {
+            background: #fed7aa;
+            color: #c2410c;
+        }
+
+        .stage-description {
+            color: #718096;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .component-card {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 3px solid var(--research-green);
+        }
+
+        .component-name {
+            font-weight: 600;
+            color: var(--dark-bg);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .component-detail {
+            font-size: 13px;
+            color: #718096;
+            margin: 4px 0;
+        }
+
+        .component-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--research-green-dark);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .component-link:hover {
+            color: var(--research-green);
+            text-decoration: underline;
+        }
+
+        .component-link::before {
+            content: "→ ";
+        }
+
+        .arrow-connector {
+            text-align: center;
+            font-size: 36px;
+            color: var(--research-green);
+            margin: 10px 0;
+            font-weight: 300;
+        }
+
+        .data-flow-viz {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px dashed var(--research-green);
+        }
+
+        .flow-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: var(--light-bg);
+            border-radius: 10px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--dark-bg);
+        }
+
+        .flow-arrow {
+            color: var(--research-green);
+            margin: 0 15px;
+            font-size: 20px;
+        }
+
+        .key-feature {
+            background: linear-gradient(135deg, var(--research-green) 0%, var(--research-green-dark) 100%);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(34, 197, 93, 0.3);
+        }
+
+        .key-feature h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .key-feature ul {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .key-feature li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .key-feature li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+            color: var(--research-green-light);
+        }
+
+        .github-banner {
+            background: var(--dark-bg);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            margin: 50px 0;
+            text-align: center;
+        }
+
+        .github-link {
+            display: inline-block;
+            background: var(--research-green);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            background: var(--research-green-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 93, 0.3);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 30px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--research-green) 0%, var(--research-green-dark) 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--light-bg);
+        }
+
+        code {
+            background: var(--light-bg);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--research-green-dark);
+        }
+
+        .highlight-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .highlight-box strong {
+            color: #92400e;
+        }
+
+        footer {
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .schedule-badge {
+            background: var(--research-green-light);
+            color: var(--research-green-dark);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="agent-badge">RESEARCH AGENT</div>
+            <h1>Automated Data Pipeline</h1>
+            <p class="subtitle">Lambda → S3 → Databricks Bronze → Silver → Gold</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">6</span>
+                    <span class="stat-label">Data Sources</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">5</span>
+                    <span class="stat-label">Lambda Functions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">~7K</span>
+                    <span class="stat-label">Gold Table Rows</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">67</span>
+                    <span class="stat-label">Weather Regions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">2 AM</span>
+                    <span class="stat-label">Daily Sync (UTC)</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="key-feature">
+            <h3>🎯 Mission</h3>
+            <p style="font-size: 18px; line-height: 1.7;">
+                Create <code>commodity.gold.unified_data</code> – a single, ML-ready table combining market prices,
+                weather data from 67 growing regions, exchange rates for 24 producer country currencies, VIX volatility,
+                CFTC trader positioning, and GDELT news sentiment.
+            </p>
+            <ul>
+                <li>Grain: (date, commodity) - every day from 2015-07-07 to present</li>
+                <li>Forward-filled to handle weekends, holidays, and missing data</li>
+                <li>Weather & GDELT as arrays of structs for flexible aggregation</li>
+                <li>Feeds forecast_agent models for 14-day price predictions</li>
+            </ul>
+        </div>
+
+        <h2 class="section-title">Complete Data Pipeline</h2>
+
+        <!-- Stage 1: Lambda Ingestion -->
+        <div class="pipeline-stage">
+            <div class="stage-header">
+                <div class="stage-number">1</div>
+                <div class="stage-title">Scheduled Data Ingestion</div>
+                <div class="stage-status">Automated ✓</div>
+            </div>
+            <div class="stage-description">
+                Six EventBridge rules trigger daily at <strong>2:00 AM UTC</strong> to fetch fresh data from external APIs and write to S3.
+                <span class="schedule-badge">cron(0 2 * * ? *)</span>
+            </div>
+            <div class="component-grid">
+                <div class="component-card">
+                    <div class="component-name">🏦 Market Data (Coffee & Sugar)</div>
+                    <div class="component-detail">EventBridge: groundtruth-market-data-daily</div>
+                    <div class="component-detail">Lambda: market-data-fetcher</div>
+                    <div class="component-detail">Source: Yahoo Finance (yfinance)</div>
+                    <div class="component-detail">Output: s3://.../landing/market_data/</div>
+                    <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/lambda/functions/market-data-fetcher/app.py" class="component-link" target="_blank">View Code</a>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-name">📊 VIX (Volatility Index)</div>
+                    <div class="component-detail">EventBridge: groundtruth-vix-data-daily</div>
+                    <div class="component-detail">Lambda: vix-data-fetcher</div>
+                    <div class="component-detail">Source: Yahoo Finance</div>
+                    <div class="component-detail">Output: s3://.../landing/vix_data/</div>
+                    <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/lambda/functions/vix-data-fetcher/app.py" class="component-link" target="_blank">View Code</a>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-name">💱 FX Rates (24 Currencies)</div>
+                    <div class="component-detail">EventBridge: groundtruth-fx-data-daily</div>
+                    <div class="component-detail">Lambda: fx-calculator-fetcher</div>
+                    <div class="component-detail">Source: Federal Reserve (FRED)</div>
+                    <div class="component-detail">Output: s3://.../landing/macro_data/</div>
+                    <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/lambda/functions/fx-calculator-fetcher/app.py" class="component-link" target="_blank">View Code</a>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-name">🌤️ Weather Data (67 Regions)</div>
+                    <div class="component-detail">EventBridge: groundtruth-weather-data-daily</div>
+                    <div class="component-detail">Lambda: weather-data-fetcher</div>
+                    <div class="component-detail">Source: Open-Meteo Archive API</div>
+                    <div class="component-detail">Coordinates: s3://.../config/region_coordinates.json (v2)</div>
+                    <div class="component-detail">Output: s3://.../landing/weather_v2/</div>
+                    <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/lambda/functions/weather-data-fetcher/app.py" class="component-link" target="_blank">View Code</a>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-name">📈 CFTC (Trader Positioning)</div>
+                    <div class="component-detail">EventBridge: groundtruth-cftc-data-daily</div>
+                    <div class="component-detail">Lambda: cftc-data-fetcher</div>
+                    <div class="component-detail">Source: CFTC Disaggregated Reports</div>
+                    <div class="component-detail">Output: s3://.../landing/cftc_data/</div>
+                    <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/lambda/functions/cftc-data-fetcher/app.py" class="component-link" target="_blank">View Code</a>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-name">📰 GDELT (News Sentiment)</div>
+                    <div class="component-detail">EventBridge: gdelt-daily-discovery-schedule</div>
+                    <div class="component-detail">Step Function: gdelt-daily-incremental-pipeline</div>
+                    <div class="component-detail">Lambda: gdelt-daily-discovery</div>
+                    <div class="component-detail">Source: GDELT Project</div>
+                    <div class="component-detail">Output: s3://.../landing/gdelt/filtered/</div>
+                    <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/lambda/functions/gdelt-daily-discovery/app.py" class="component-link" target="_blank">View Code</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-connector">↓</div>
+
+        <!-- Stage 2: Landing Tables -->
+        <div class="pipeline-stage">
+            <div class="stage-header">
+                <div class="stage-number">2</div>
+                <div class="stage-title">Landing Layer (Incremental)</div>
+                <div class="stage-status manual">Manual</div>
+            </div>
+            <div class="stage-description">
+                Databricks SQL reads CSV/JSON files from S3 and creates incremental landing tables with <code>ingest_ts</code> timestamps for deduplication.
+            </div>
+            <div class="data-flow-viz">
+                <div class="flow-item">
+                    S3: landing/market_data/*.csv
+                    <span class="flow-arrow">→</span>
+                    commodity.landing.market_data_inc
+                </div>
+                <div class="flow-item">
+                    S3: landing/vix_data/*.csv
+                    <span class="flow-arrow">→</span>
+                    commodity.landing.vix_data_inc
+                </div>
+                <div class="flow-item">
+                    S3: landing/macro_data/*.csv
+                    <span class="flow-arrow">→</span>
+                    commodity.landing.macro_data_inc
+                </div>
+                <div class="flow-item">
+                    S3: landing/weather_v2/*.csv
+                    <span class="flow-arrow">→</span>
+                    commodity.landing.weather_data_inc
+                </div>
+                <div class="flow-item">
+                    S3: landing/cftc_data/*.csv
+                    <span class="flow-arrow">→</span>
+                    commodity.landing.cftc_data_inc
+                </div>
+                <div class="flow-item">
+                    S3: landing/gdelt/filtered/*.jsonl
+                    <span class="flow-arrow">→</span>
+                    commodity.landing.gdelt_sentiment_inc
+                </div>
+            </div>
+            <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/databricks/01_create_landing_tables.sql" class="component-link" target="_blank">View SQL Script</a>
+        </div>
+
+        <div class="arrow-connector">↓</div>
+
+        <!-- Stage 3: Bronze Deduplication -->
+        <div class="pipeline-stage">
+            <div class="stage-header">
+                <div class="stage-number">3</div>
+                <div class="stage-title">Bronze Layer (Deduplication)</div>
+                <div class="stage-status manual">Manual</div>
+            </div>
+            <div class="stage-description">
+                Removes duplicate records using window functions (<code>QUALIFY ROW_NUMBER()</code>). Latest <code>ingest_ts</code> wins.
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bronze Table</th>
+                            <th>Grain</th>
+                            <th>Dedup Strategy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>commodity.bronze.market</code></td>
+                            <td>(date, commodity)</td>
+                            <td>Latest ingest_ts</td>
+                        </tr>
+                        <tr>
+                            <td><code>commodity.bronze.vix</code></td>
+                            <td>(date)</td>
+                            <td>Latest ingest_ts</td>
+                        </tr>
+                        <tr>
+                            <td><code>commodity.bronze.macro</code></td>
+                            <td>(date)</td>
+                            <td>Row with most non-NULL FX columns</td>
+                        </tr>
+                        <tr>
+                            <td><code>commodity.bronze.weather</code></td>
+                            <td>(date, region, commodity)</td>
+                            <td>Latest ingest_ts</td>
+                        </tr>
+                        <tr>
+                            <td><code>commodity.bronze.cftc</code></td>
+                            <td>(date, market_name)</td>
+                            <td>Latest ingest_ts</td>
+                        </tr>
+                        <tr>
+                            <td><code>commodity.bronze.gdelt</code></td>
+                            <td>(event_timestamp, source_url)</td>
+                            <td>No dedup (keeps all articles)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/databricks/02_create_bronze_views.sql" class="component-link" target="_blank">View SQL Script</a>
+        </div>
+
+        <div class="arrow-connector">↓</div>
+
+        <!-- Stage 4: Silver Transformation -->
+        <div class="pipeline-stage">
+            <div class="stage-header">
+                <div class="stage-number">4</div>
+                <div class="stage-title">Silver Layer (GDELT Wide)</div>
+                <div class="stage-status manual">Manual</div>
+            </div>
+            <div class="stage-description">
+                GDELT articles are aggregated by theme groups (SUPPLY, LOGISTICS, TRADE, MARKET, POLICY, CORE, OTHER)
+                and tone metrics. External processing creates parquet files in S3, registered as an external table.
+            </div>
+            <div class="data-flow-viz">
+                <div class="flow-item">
+                    commodity.bronze.gdelt
+                    <span class="flow-arrow">→</span>
+                    [External Processing]
+                    <span class="flow-arrow">→</span>
+                    S3: processed/gdelt/silver/gdelt_wide/
+                </div>
+                <div class="flow-item">
+                    S3: processed/gdelt/silver/gdelt_wide/
+                    <span class="flow-arrow">→</span>
+                    commodity.silver.gdelt_wide
+                </div>
+            </div>
+            <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/databricks/gdelt_silver_simple.sql" class="component-link" target="_blank">View SQL Script</a>
+        </div>
+
+        <div class="arrow-connector">↓</div>
+
+        <!-- Stage 5: Gold Unified Data -->
+        <div class="pipeline-stage">
+            <div class="stage-header">
+                <div class="stage-number">5</div>
+                <div class="stage-title">Gold Layer (ML-Ready Unified Data)</div>
+                <div class="stage-status manual">Manual</div>
+            </div>
+            <div class="stage-description">
+                <strong>The crown jewel!</strong> Creates <code>commodity.gold.unified_data</code> by:
+                <ul style="margin-top: 15px; padding-left: 25px;">
+                    <li>Generating complete date spine (every day from 2015-07-07)</li>
+                    <li>Forward-filling scalar data (market, VIX, FX) with LAST_VALUE()</li>
+                    <li>Structuring weather as ARRAY&lt;STRUCT&gt; (67 regions)</li>
+                    <li>Structuring GDELT as ARRAY&lt;STRUCT&gt; (7 theme groups)</li>
+                    <li>Left joining all sources on (date, commodity)</li>
+                </ul>
+            </div>
+            <div class="highlight-box">
+                <strong>Result:</strong> ~7,000 rows (2 commodities × ~3,500 days) with <strong>no NULLs</strong> and <strong>complete daily coverage</strong>.
+                <br>90% fewer rows than silver layer while maintaining all regional detail via arrays.
+            </div>
+            <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/sql/create_gold_unified_data.sql" class="component-link" target="_blank">View SQL Script</a>
+        </div>
+
+        <h2 class="section-title">Key Features</h2>
+
+        <div class="component-grid">
+            <div class="component-card">
+                <div class="component-name">🔄 Forward-Filled Data</div>
+                <div class="component-detail">Uses LAST_VALUE() window functions to eliminate NULLs</div>
+                <div class="component-detail">Handles weekends, holidays, and missing API responses</div>
+            </div>
+
+            <div class="component-card">
+                <div class="component-name">🌍 Multi-Regional Weather</div>
+                <div class="component-detail">67 growing regions with precise coordinates (v2)</div>
+                <div class="component-detail">Temperature, precipitation, humidity, wind speed</div>
+                <div class="component-detail">Stored as ARRAY&lt;STRUCT&gt; for flexible aggregation</div>
+            </div>
+
+            <div class="component-card">
+                <div class="component-name">💱 Producer Country FX</div>
+                <div class="component-detail">24 currencies: VND, COP, IDR, ETB, HNL, UGX, PEN, XAF, GTQ, GNF, NIO, CRC, TZS, KES, LAK, PKR, PHP, EGP, ARS, RUB, TRY, UAH, IRR, BYN</div>
+                <div class="component-detail">Daily rates from Federal Reserve FRED</div>
+            </div>
+
+            <div class="component-card">
+                <div class="component-name">📰 News Sentiment (GDELT)</div>
+                <div class="component-detail">7 theme groups with tone metrics</div>
+                <div class="component-detail">Article counts, sentiment polarity, volatility</div>
+                <div class="component-detail">Forward-filled (not every day has articles)</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Final Output: commodity.gold.unified_data</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Column Group</th>
+                        <th>Columns</th>
+                        <th>Data Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Identifiers</td>
+                        <td>date, commodity, is_trading_day</td>
+                        <td>DATE, STRING, INT</td>
+                    </tr>
+                    <tr>
+                        <td>Market OHLCV</td>
+                        <td>open, high, low, close, volume</td>
+                        <td>DOUBLE, DOUBLE, DOUBLE, DOUBLE, BIGINT</td>
+                    </tr>
+                    <tr>
+                        <td>Volatility</td>
+                        <td>vix</td>
+                        <td>DOUBLE</td>
+                    </tr>
+                    <tr>
+                        <td>Exchange Rates</td>
+                        <td>vnd_usd, cop_usd, ... (24 total)</td>
+                        <td>DOUBLE</td>
+                    </tr>
+                    <tr>
+                        <td>Weather</td>
+                        <td>weather_data</td>
+                        <td>ARRAY&lt;STRUCT&lt;region, temp_max_c, temp_min_c, temp_mean_c, precipitation_mm, rain_mm, snowfall_cm, humidity_mean_pct, wind_speed_max_kmh&gt;&gt;</td>
+                    </tr>
+                    <tr>
+                        <td>News Sentiment</td>
+                        <td>gdelt_themes</td>
+                        <td>ARRAY&lt;STRUCT&lt;theme_group, article_count, tone_avg, tone_positive, tone_negative, tone_polarity&gt;&gt;</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="github-banner">
+            <h3 style="margin-bottom: 10px; font-size: 28px;">📊 Full Dependency Graph</h3>
+            <p style="font-size: 16px; opacity: 0.9; margin-bottom: 20px;">
+                See the complete data lineage documentation with all EventBridge schedules, Lambda functions,
+                SQL transformations, and Databricks table relationships.
+            </p>
+            <a href="https://github.com/Connor-Watson-Berkeley/ucberkeley-capstone/blob/main/research_agent/infrastructure/GOLD_UNIFIED_DATA_DEPENDENCY_GRAPH.md" class="github-link" target="_blank">
+                View Dependency Graph →
+            </a>
+        </div>
+
+        <div class="highlight-box">
+            <strong>⚠️ Note:</strong> Databricks SQL scripts (landing → bronze → silver → gold) currently run <strong>manually</strong>.
+            Recommendation: Create Databricks Workflow scheduled for 3:00 AM UTC to automate the entire pipeline.
+        </div>
+
+        <footer>
+            <p><strong>Research Agent</strong> | Ground Truth Capstone Project</p>
+            <p style="margin-top: 10px;">Connor Watson, Stuart Holland, Francisco Munoz, Tony Gibbons</p>
+            <p style="margin-top: 15px; font-size: 12px;">Last Updated: December 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

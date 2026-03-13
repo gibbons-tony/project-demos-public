@@ -1,0 +1,15 @@
+# Large model files
+mlapi/distilbert-base-uncased-finetuned-sst2/model.safetensors
+mlapi/distilbert-base-uncased-finetuned-sst2/pytorch_model.bin
+mlapi/distilbert-base-uncased-finetuned-sst2/
+
+# Archive files
+mlapi/project.tar
+mlapi/image.tar.gz
+lab4/tmp/image-eaf9889.tar
+
+# General patterns for similar files
+*.tar
+*.tar.gz
+*.bin
+*.safetensors
