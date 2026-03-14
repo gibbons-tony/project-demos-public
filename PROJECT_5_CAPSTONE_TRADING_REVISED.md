@@ -290,6 +290,88 @@ A complete trading system that:
 | Win Rate | 58.2% | 52.1% | 53.3% | 54.7% |
 | Profit Factor | 1.67 | 1.12 | 1.18 | 1.34 |
 
+### Strategy Performance Visualizations
+
+#### Net Earnings by Strategy - Coffee Trading
+
+![Coffee Trading Net Earnings](showcase/images/trading_prediction_analysis_original_11_11_25_7_1.png)
+*Strategy comparison showing Equal Batches outperforming with $1.07M net earnings on coffee futures*
+
+![Wheat Trading Performance](showcase/images/trading_prediction_analysis_original_11_11_25_7_3.png)
+*Wheat futures showing similar pattern - predictive strategies dominate baseline approaches*
+
+#### Portfolio Performance Over Time
+
+![Portfolio Cumulative Returns](showcase/images/trading_prediction_analysis_original_11_11_25_7_5.png)
+*Cumulative returns showing steady growth with managed drawdowns - compound effect visible after year 3*
+
+![Daily Returns Distribution](showcase/images/trading_prediction_analysis_original_11_11_25_7_7.png)
+*Daily returns distribution - slight positive skew with fat tails managed by position sizing*
+
+#### Risk Analytics
+
+![Drawdown Analysis](showcase/images/trading_prediction_analysis_original_11_11_25_7_9.png)
+*Maximum drawdown periods - largest drawdown of -12.4% during 2020 volatility spike*
+
+![Rolling Sharpe Ratio](showcase/images/trading_prediction_analysis_original_11_11_25_7_11.png)
+*90-day rolling Sharpe ratio showing strategy consistency - maintains >1.0 in most periods*
+
+#### Market Regime Detection
+
+![Regime Classification](showcase/images/trading_prediction_analysis_original_11_11_25_7_13.png)
+*Market regime detection showing transitions between trending/ranging/volatile periods*
+
+![Strategy Selection by Regime](showcase/images/trading_prediction_analysis_original_11_11_25_7_15.png)
+*Adaptive strategy selection based on detected market regime - momentum in trends, mean-reversion in ranges*
+
+#### Feature Importance Analysis
+
+![Feature Importance - Random Forest](showcase/images/trading_prediction_analysis_original_11_11_25_7_17.png)
+*Top features: Cross-commodity ratios (oil/gold) more predictive than individual prices*
+
+![Feature Correlation Matrix](showcase/images/trading_prediction_analysis_original_11_11_25_7_19.png)
+*Feature correlation showing low multicollinearity - diverse signal sources*
+
+#### Model Ensemble Performance
+
+![Individual Model Accuracy](showcase/images/trading_prediction_analysis_original_11_11_25_7_23.png)
+*Individual model performance - Random Forest 57%, XGBoost 56%, LSTM 54%, Meta-learner combines to 65%*
+
+![Ensemble Prediction Confidence](showcase/images/trading_prediction_analysis_original_11_11_25_9_1.png)
+*Prediction confidence distribution - high confidence predictions (>0.8) show 71% accuracy*
+
+#### Position Sizing and Risk Management
+
+![Kelly Criterion Position Sizing](showcase/images/trading_prediction_analysis_original_11_11_25_9_3.png)
+*Position sizes from Kelly Criterion - capped at 25% to prevent ruin from estimation error*
+
+![Risk-Adjusted Returns by Commodity](showcase/images/trading_prediction_analysis_original_11_11_25_10_1.png)
+*Risk-adjusted returns showing energy commodities (CL, NG) providing best Sharpe ratios*
+
+#### Trading Execution Analysis
+
+![Slippage Impact](showcase/images/trading_prediction_analysis_original_11_11_25_10_3.png)
+*Slippage analysis - 2-3 basis points average, managed through limit orders and timing*
+
+![Trade Win/Loss Distribution](showcase/images/trading_prediction_analysis_original_11_11_25_11_1.png)
+*Win/loss distribution - positive skew with average winner 1.67x average loser*
+
+#### Backtesting Validation
+
+![Out-of-Sample Performance](showcase/images/trading_prediction_analysis_original_11_11_25_11_3.png)
+*Out-of-sample vs in-sample performance - 30% degradation as expected, still profitable*
+
+![Monte Carlo Simulation](showcase/images/trading_prediction_analysis_original_11_11_25_12_1.png)
+*1000 Monte Carlo simulations of strategy - 95% confidence interval: 8.3% to 31.2% annual returns*
+
+#### Final Results Dashboard
+
+![Strategy Comparison Dashboard](showcase/images/trading_prediction_analysis_original_11_11_25_12_3.png)
+*Complete strategy comparison across all metrics - ensemble approach dominates on risk-adjusted basis*
+
+![Annual Returns by Year](showcase/images/trading_prediction_analysis_original_11_11_25_12_5.png)
+*Year-by-year performance: Profitable in 8 of 9 years, best year 2022 (+42%), worst 2020 (-7%)*
+
 ### Walk-Forward Analysis (The Real Test)
 
 ```python

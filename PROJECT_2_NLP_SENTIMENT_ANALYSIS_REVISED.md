@@ -25,6 +25,19 @@ This project let me explore cutting-edge questions:
 
 ---
 
+## Dataset Analysis
+
+### Sentiment Class Distribution
+
+The FinancialPhraseBank dataset shows significant class imbalance, which is typical in financial text:
+
+![Class Distribution](showcase/images/266_project_workbook_final_19_1.png)
+*Sentiment distribution in test dataset: Neutral dominates (700 samples), followed by Positive (400) and Negative (200)*
+
+This imbalance reflects real-world financial text - most statements are factual/neutral rather than explicitly positive or negative.
+
+---
+
 ## The Strong/Cool Approach
 
 ### Technical Innovation: Self-Training with Intelligent Debiasing
@@ -173,6 +186,29 @@ A complete financial sentiment analysis system that:
 | Confidence Debiasing | 60% + pseudo | 86.4% | 0.84 | $X |
 | Ensemble Debiasing | 60% + pseudo | 87.2% | 0.85 | $3X |
 | **Hybrid (Ensemble + Confidence)** | **60% + pseudo** | **88.1%** | **0.86** | **$3X** |
+
+### Model Performance Comparison
+
+![Model Performance Comparison](showcase/images/266_project_workbook_final_19_3.png)
+*Performance across different self-training configurations - showing consistent ~80% accuracy with F1 scores matching*
+
+The visualization reveals that all debiasing strategies converge to similar performance, suggesting robustness of the approach. The ensemble method slightly outperforms others but at 3x the computational cost.
+
+### Training Dynamics
+
+![Training Progress](showcase/images/266_project_workbook_final_19_5.png)
+*Self-training iterations showing gradual improvement as pseudo-labels refine*
+
+![Confidence Distribution](showcase/images/266_project_workbook_final_19_7.png)
+*Model confidence scores distribution - high confidence predictions (>0.9) are significantly more accurate*
+
+### Pseudo-Label Quality Analysis
+
+![Pseudo-Label Accuracy](showcase/images/266_project_workbook_final_21_1.png)
+*Pseudo-label quality improves with each self-training iteration*
+
+![Distribution Shift](showcase/images/266_project_workbook_final_21_2.png)
+*Distribution matching prevents drift - pseudo-labels maintain similar class balance to original data*
 
 ### The Key Insight
 
