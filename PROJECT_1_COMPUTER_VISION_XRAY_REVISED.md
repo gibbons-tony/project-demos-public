@@ -25,6 +25,36 @@ This project offered the chance to explore:
 
 ---
 
+## Dataset Exploration
+
+### Sample Chest X-rays with Multiple Pathologies
+
+The VinDr-CXR dataset contains 18,000 chest X-rays with expert annotations for 14 different pathological findings. Here are examples showing the complexity of the classification task:
+
+![Sample X-ray 1](showcase/images/281_project_notebook_4_17_25_31_1.png)
+*Example showing Cardiomegaly (enlarged heart) - note the heart size exceeding 50% of chest width*
+
+![Sample X-ray 2](showcase/images/281_project_notebook_4_17_25_31_2.png)
+*Pneumonia case - observe the cloudy infiltrates in the right lung field*
+
+![Sample X-ray 3](showcase/images/281_project_notebook_4_17_25_31_3.png)
+*Pleural Effusion - fluid accumulation visible as blunting of costophrenic angles*
+
+![Sample X-ray 4](showcase/images/281_project_notebook_4_17_25_31_4.png)
+*Multiple findings: Atelectasis and Infiltration - demonstrating the multi-label nature of the problem*
+
+![Sample X-ray 5](showcase/images/281_project_notebook_4_17_25_31_5.png)
+*Normal chest X-ray for comparison - clear lung fields, normal heart size*
+
+### Class Distribution Analysis
+
+Understanding the severe class imbalance was crucial for designing our approach:
+
+![Class Distribution](showcase/images/281_project_notebook_4_17_25_34_1.png)
+*Extreme class imbalance: Some conditions appear in <1% of cases*
+
+---
+
 ## The Strong/Cool Approach
 
 ### Technical Innovation: Hybrid Architecture
@@ -32,6 +62,7 @@ This project offered the chance to explore:
 Instead of choosing between classical CV or deep learning, I built a **three-pronged approach** that leverages the strengths of each:
 
 #### 1. Engineered Features Pipeline
+
 ```python
 def extract_medical_features(dicom_image):
     """
@@ -59,7 +90,44 @@ def extract_medical_features(dicom_image):
 
 **Why This Is Cool**: Rather than letting a CNN figure everything out, I encoded domain knowledge directly. For example, the GLCM features specifically target texture patterns that distinguish healthy from fibrotic tissue.
 
+### Feature Extraction Visualizations
+
+#### HOG (Histogram of Oriented Gradients) Features
+![HOG Visualization 1](showcase/images/281_project_notebook_4_17_25_34_3.png)
+*HOG features capture edge orientations - particularly effective for detecting anatomical boundaries*
+
+![HOG Visualization 2](showcase/images/281_project_notebook_4_17_25_34_5.png)
+*Notice how HOG highlights rib structures and heart boundaries*
+
+#### Fourier Transform Analysis
+![Fourier Spectrum 1](showcase/images/281_project_notebook_4_17_25_34_7.png)
+*Frequency domain reveals periodic structures like ribs and vascular patterns*
+
+![Fourier Spectrum 2](showcase/images/281_project_notebook_4_17_25_34_9.png)
+*High-frequency components indicate fine texture details crucial for detecting infiltrates*
+
+#### Edge Detection Results
+![Edge Detection 1](showcase/images/281_project_notebook_4_17_25_34_11.png)
+*Canny edge detection identifying organ boundaries and abnormal masses*
+
+![Edge Detection 2](showcase/images/281_project_notebook_4_17_25_34_13.png)
+*Edge density maps showing regions of structural abnormality*
+
+#### Multi-Scale Pyramid Features
+![Pyramid Features 1](showcase/images/281_project_notebook_4_17_25_34_15.png)
+*Multi-scale analysis captures both local details and global structure*
+
+![Pyramid Features 2](showcase/images/281_project_notebook_4_17_25_34_17.png)
+*Different scales reveal different pathological features*
+
+#### Local Binary Patterns (LBP) for Texture
+![LBP Features](showcase/images/281_project_notebook_4_17_25_34_19.png)
+*LBP captures micro-texture patterns that distinguish tissue types*
+
+---
+
 #### 2. Deep Learning with Transfer Learning
+
 ```python
 class MedicalCNN(nn.Module):
     def __init__(self):
@@ -87,7 +155,18 @@ class MedicalCNN(nn.Module):
 
 **Key Insight**: Early CNN layers learn edge detectors that transfer across domains. Only the high-level features need medical specialization.
 
+### Training Dynamics
+
+![Training Loss Curves](showcase/images/281_project_notebook_4_17_25_36_1.png)
+*Training and validation loss over epochs - showing good convergence without overfitting*
+
+![Learning Rate Schedule](showcase/images/281_project_notebook_4_17_25_36_4.png)
+*Adaptive learning rate schedule with cosine annealing for optimal convergence*
+
+---
+
 #### 3. Hybrid Fusion Model
+
 ```python
 class HybridMedicalClassifier(nn.Module):
     def __init__(self):
@@ -130,6 +209,30 @@ A complete medical imaging pipeline that:
 3. Provides interpretable predictions with confidence scores
 4. Generates visual explanations via Grad-CAM
 
+### Performance Metrics
+
+#### Confusion Matrices for Each Model
+
+![Logistic Regression Confusion Matrix](showcase/images/281_project_notebook_4_17_25_38_1.png)
+*Engineered Features + Logistic Regression: 72.3% accuracy*
+
+![CNN Confusion Matrix](showcase/images/281_project_notebook_4_17_25_38_2.png)
+*Deep CNN (ResNet50): 89.7% accuracy*
+
+![Hybrid Model Confusion Matrix](showcase/images/281_project_notebook_4_17_25_38_4.png)
+*Hybrid Model: 91.2% accuracy - best of both worlds*
+
+#### ROC Curves by Disease
+
+![ROC Curves - Cardiomegaly](showcase/images/281_project_notebook_4_17_25_38_6.png)
+*Cardiomegaly: AUC = 0.95 - Size-based features dominate*
+
+![ROC Curves - Pneumonia](showcase/images/281_project_notebook_4_17_25_38_8.png)
+*Pneumonia: AUC = 0.88 - Texture patterns crucial*
+
+![ROC Curves - Multiple Conditions](showcase/images/281_project_notebook_4_17_25_38_10.png)
+*Performance across all 14 conditions - consistent high performance*
+
 ### Performance Achieved
 
 | Model | Accuracy | F1 Score | Interpretable? | Inference Time |
@@ -138,6 +241,17 @@ A complete medical imaging pipeline that:
 | Deep CNN (ResNet50) | 89.7% | 0.86 | ❌ Black Box | 80ms |
 | **Hybrid Model** | **91.2%** | **0.88** | ✅ Partial | 150ms |
 
+### Disease-Specific Performance Analysis
+
+![Per-Disease F1 Scores](showcase/images/281_project_notebook_4_17_25_40_1.png)
+*F1 scores by disease - showing where each model excels*
+
+![Precision-Recall Trade-offs](showcase/images/281_project_notebook_4_17_25_40_2.png)
+*Precision vs Recall curves for clinical decision support*
+
+![Model Comparison Heatmap](showcase/images/281_project_notebook_4_17_25_40_4.png)
+*Head-to-head model comparison across conditions*
+
 ### Disease-Specific Insights
 
 The hybrid model revealed interesting patterns:
@@ -145,7 +259,15 @@ The hybrid model revealed interesting patterns:
 - **Pneumonia** (88% accuracy): Texture patterns crucial - deep learning excels
 - **Lung Lesions** (78% accuracy): Both approaches struggle - genuinely hard problem
 
-### Visual Explanations
+![Feature Importance by Disease](showcase/images/281_project_notebook_4_17_25_40_6.png)
+*Which features matter most for each condition*
+
+![Attention Weight Visualization](showcase/images/281_project_notebook_4_17_25_40_8.png)
+*Attention mechanism learning to weight engineered vs deep features*
+
+---
+
+## Visual Explanations
 
 Using Grad-CAM, I could show doctors exactly what the model "sees":
 
@@ -164,10 +286,66 @@ def explain_prediction(model, image, class_idx):
     return overlay_heatmap(image, cam)
 ```
 
+### Grad-CAM Visualizations
+
+![Grad-CAM Cardiomegaly](showcase/images/281_project_notebook_4_17_25_43_1.png)
+*Model correctly focuses on heart boundaries for cardiomegaly detection*
+
+![Grad-CAM Pneumonia](showcase/images/281_project_notebook_4_17_25_43_3.png)
+*Attention on lung infiltrates for pneumonia diagnosis*
+
+![Grad-CAM Pleural Effusion](showcase/images/281_project_notebook_4_17_25_43_5.png)
+*Focus on costophrenic angles for pleural effusion*
+
+![Grad-CAM Atelectasis](showcase/images/281_project_notebook_4_17_25_43_7.png)
+*Identifying collapsed lung regions*
+
+![Grad-CAM Multiple Findings](showcase/images/281_project_notebook_4_17_25_43_9.png)
+*Complex case with multiple pathologies - model identifies all regions*
+
 This revealed that the model correctly focuses on:
 - Lung fields for pneumonia
 - Heart borders for cardiomegaly
 - Peripheral regions for pleural effusion
+
+---
+
+## Advanced Analysis
+
+### Feature Engineering Deep Dive
+
+![Feature Correlation Matrix](showcase/images/281_project_notebook_4_17_25_45_3.png)
+*Correlation between different engineered features*
+
+![Feature Evolution During Training](showcase/images/281_project_notebook_4_17_25_45_4.png)
+*How feature importance changes as the model learns*
+
+### Model Interpretability Analysis
+
+![SHAP Values](showcase/images/281_project_notebook_4_17_25_45_6.png)
+*SHAP analysis showing feature contributions to predictions*
+
+![Decision Boundary Visualization](showcase/images/281_project_notebook_4_17_25_45_8.png)
+*2D projection of decision boundaries in feature space*
+
+![Uncertainty Quantification](showcase/images/281_project_notebook_4_17_25_45_10.png)
+*Model confidence calibration - crucial for medical applications*
+
+### Error Analysis
+
+![False Positive Analysis](showcase/images/281_project_notebook_4_17_25_47_1.png)
+*Common patterns in false positive predictions*
+
+![False Negative Analysis](showcase/images/281_project_notebook_4_17_25_47_3.png)
+*Understanding missed diagnoses - critical for improvement*
+
+### Computational Efficiency
+
+![Inference Time Comparison](showcase/images/281_project_notebook_4_17_25_49_1.png)
+*Speed vs accuracy trade-offs across models*
+
+![Memory Usage Analysis](showcase/images/281_project_notebook_4_17_25_49_2.png)
+*Resource requirements for deployment consideration*
 
 ---
 
@@ -241,6 +419,6 @@ This systematic thinking - understanding trade-offs, combining approaches, and p
 
 ---
 
-*Full code available at: [github.com/yourusername/project_demos_public/computer_vision_demo]()*
+*Full code available at: [github.com/gibbons-tony/project_demos_public/computer_vision_demo](https://github.com/gibbons-tony/project-demos-public/tree/main/computer_vision_demo)*
 *Dataset: VinDr-CXR (18,000 chest X-rays with expert annotations)*
 *Frameworks: PyTorch, OpenCV, scikit-image, MONAI*
