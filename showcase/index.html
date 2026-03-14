@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Projects Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .project-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .project-body {
+            padding: 25px;
+        }
+
+        .project-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tech-tag {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .project-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            margin: -25px -25px 20px -25px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .view-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .view-button:hover {
+            background: #764ba2;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75em;
+            margin-left: 10px;
+        }
+
+        .badge.wip {
+            background: #ffc107;
+        }
+
+        /* Project detail pages */
+        .project-detail {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .project-detail.active {
+            display: block;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .notebooks-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .notebook-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notebook-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .notebook-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .notebook-links a {
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .notebook-links a:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Academic Projects Portfolio</h1>
+            <p>UC Berkeley MIDS Program | Machine Learning & Data Science</p>
+        </header>
+
+        <!-- Main Projects Grid -->
+        <div id="projects-view">
+            <div class="projects-grid">
+                <!-- Cloud App Demo -->
+                <div class="project-card" onclick="showProject('cloud-app')">
+                    <div class="project-header">
+                        ☁️ Cloud ML Application
+                        <span class="badge">PRODUCTION</span>
+                    </div>
+                    <div class="project-body">
+                        <div class="project-stats">
+                            <div class="stat">
+                                <div class="stat-value">API</div>
+                                <div class="stat-label">Type</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">K8s</div>
+                                <div class="stat-label">Deploy</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">✅</div>
+                                <div class="stat-label">Status</div>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            Production-ready ML API with Kubernetes orchestration, Redis caching, and Grafana monitoring.
+                            Full CI/CD pipeline with Docker containerization.
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">FastAPI</span>
+                            <span class="tech-tag">Docker</span>
+                            <span class="tech-tag">Kubernetes</span>
+                            <span class="tech-tag">Redis</span>
+                            <span class="tech-tag">Grafana</span>
+                        </div>
+                        <span class="view-button">View Project →</span>
+                    </div>
+                </div>
+
+                <!-- UC Berkeley Capstone -->
+                <div class="project-card" onclick="showProject('capstone')">
+                    <div class="project-header">
+                        🏆 UC Berkeley Capstone
+                        <span class="badge">ENTERPRISE</span>
+                    </div>
+                    <div class="project-body">
+                        <div class="project-stats">
+                            <div class="stat">
+                                <div class="stat-value">30+</div>
+                                <div class="stat-label">Notebooks</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">Agents</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">45%</div>
+                                <div class="stat-label">Complete</div>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            Multi-agent commodity trading system with ML forecasting. Research, Forecast, and Trading agents
+                            working in concert. Extensive backtesting and strategy optimization.
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">PySpark</span>
+                            <span class="tech-tag">Databricks</span>
+                            <span class="tech-tag">AWS Lambda</span>
+                            <span class="tech-tag">EventBridge</span>
+                        </div>
+                        <span class="view-button">View Project →</span>
+                    </div>
+                </div>
+
+                <!-- Computer Vision Demo -->
+                <div class="project-card" onclick="showProject('cv')">
+                    <div class="project-header">
+                        🔬 Computer Vision
+                        <span class="badge wip">ACADEMIC</span>
+                    </div>
+                    <div class="project-body">
+                        <div class="project-stats">
+                            <div class="stat">
+                                <div class="stat-value">X-Ray</div>
+                                <div class="stat-label">Domain</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">CNN</div>
+                                <div class="stat-label">Model</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">22MB</div>
+                                <div class="stat-label">Results</div>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            Deep learning model for chest X-ray classification. Transfer learning with ResNet50,
+                            comprehensive evaluation metrics, and extensive visualizations.
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">TensorFlow</span>
+                            <span class="tech-tag">Keras</span>
+                            <span class="tech-tag">ResNet50</span>
+                            <span class="tech-tag">Medical Imaging</span>
+                        </div>
+                        <span class="view-button">View Project →</span>
+                    </div>
+                </div>
+
+                <!-- NLP Demo -->
+                <div class="project-card" onclick="showProject('nlp')">
+                    <div class="project-header">
+                        📝 Natural Language Processing
+                        <span class="badge wip">ACADEMIC</span>
+                    </div>
+                    <div class="project-body">
+                        <div class="project-stats">
+                            <div class="stat">
+                                <div class="stat-value">NLP</div>
+                                <div class="stat-label">Type</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">266</div>
+                                <div class="stat-label">Course</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">✓</div>
+                                <div class="stat-label">Complete</div>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            Comprehensive NLP experiments including sentiment analysis, text classification,
+                            and language modeling techniques.
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">NLTK</span>
+                            <span class="tech-tag">spaCy</span>
+                            <span class="tech-tag">Transformers</span>
+                            <span class="tech-tag">Word2Vec</span>
+                        </div>
+                        <span class="view-button">View Project →</span>
+                    </div>
+                </div>
+
+                <!-- RAG Demo -->
+                <div class="project-card" onclick="showProject('rag')">
+                    <div class="project-header">
+                        🤖 RAG System
+                        <span class="badge wip">PROTOTYPE</span>
+                    </div>
+                    <div class="project-body">
+                        <div class="project-stats">
+                            <div class="stat">
+                                <div class="stat-value">RAG</div>
+                                <div class="stat-label">Type</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">LLM</div>
+                                <div class="stat-label">Tech</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">POC</div>
+                                <div class="stat-label">Status</div>
+                            </div>
+                        </div>
+                        <p class="project-description">
+                            Retrieval-Augmented Generation system combining vector databases with LLMs
+                            for enhanced question-answering capabilities.
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">LangChain</span>
+                            <span class="tech-tag">FAISS</span>
+                            <span class="tech-tag">Embeddings</span>
+                            <span class="tech-tag">Vector DB</span>
+                        </div>
+                        <span class="view-button">View Project →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Capstone Project Detail -->
+        <div id="capstone-detail" class="project-detail">
+            <button class="back-button" onclick="showProjects()">← Back to Projects</button>
+            <h2>🏆 UC Berkeley Capstone: Commodity Trading System</h2>
+            <p style="color: #666; margin-bottom: 20px;">Multi-agent system for commodity price forecasting and trading strategy optimization</p>
+
+            <div class="notebooks-list">
+                <div class="notebook-item">
+                    <span class="notebook-name">00: Setup & Configuration</span>
+                    <div class="notebook-links">
+                        <a href="html/00_setup_and_config.html">View HTML</a>
+                        <a href="notebooks/00_setup_and_config_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">01: Synthetic Predictions v8</span>
+                    <div class="notebook-links">
+                        <a href="html/01_synthetic_predictions_v8.html">View HTML</a>
+                        <a href="notebooks/01_synthetic_predictions_v8_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">02: Forecast Predictions</span>
+                    <div class="notebook-links">
+                        <a href="html/02_forecast_predictions.html">View HTML</a>
+                        <a href="notebooks/02_forecast_predictions_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">03: Strategy Implementations</span>
+                    <div class="notebook-links">
+                        <a href="html/03_strategy_implementations.html">View HTML</a>
+                        <a href="notebooks/03_strategy_implementations_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">04: Backtesting Engine</span>
+                    <div class="notebook-links">
+                        <a href="html/04_backtesting_engine.html">View HTML</a>
+                        <a href="notebooks/04_backtesting_engine_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">05: Strategy Comparison</span>
+                    <div class="notebook-links">
+                        <a href="html/05_strategy_comparison.html">View HTML</a>
+                        <a href="notebooks/05_strategy_comparison_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">06: Statistical Validation</span>
+                    <div class="notebook-links">
+                        <a href="html/06_statistical_validation.html">View HTML</a>
+                        <a href="notebooks/06_statistical_validation_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">07: Feature Importance Analysis</span>
+                    <div class="notebook-links">
+                        <a href="html/07_feature_importance.html">View HTML</a>
+                        <a href="notebooks/07_feature_importance_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">08: Sensitivity Analysis</span>
+                    <div class="notebook-links">
+                        <a href="html/08_sensitivity_analysis.html">View HTML</a>
+                        <a href="notebooks/08_sensitivity_analysis_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">09: Strategy Results Summary</span>
+                    <div class="notebook-links">
+                        <a href="html/09_strategy_results_summary.html">View HTML</a>
+                        <a href="notebooks/09_strategy_results_summary_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">10: Paired Scenario Analysis</span>
+                    <div class="notebook-links">
+                        <a href="html/10_paired_scenario_analysis.html">View HTML</a>
+                        <a href="notebooks/10_paired_scenario_analysis_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">Trading Analysis (Original)</span>
+                    <div class="notebook-links">
+                        <a href="html/trading_prediction_analysis_original_11_11_25.html">View HTML</a>
+                        <a href="notebooks/trading_prediction_analysis_original_11_11_25_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">Trading Analysis (Multi-Model)</span>
+                    <div class="notebook-links">
+                        <a href="html/trading_prediction_analysis_multi_model.html">View HTML</a>
+                        <a href="notebooks/trading_prediction_analysis_multi_model_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item" style="background: #e8f4fd;">
+                    <span class="notebook-name">📁 View All Diagnostic Notebooks (15+)</span>
+                    <div class="notebook-links">
+                        <a href="html/">Browse All HTML</a>
+                        <a href="notebooks/">Browse All Notebooks</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Computer Vision Detail -->
+        <div id="cv-detail" class="project-detail">
+            <button class="back-button" onclick="showProjects()">← Back to Projects</button>
+            <h2>🔬 Computer Vision: X-Ray Classification</h2>
+            <p style="color: #666; margin-bottom: 20px;">Deep learning model for medical image analysis</p>
+
+            <div class="notebooks-list">
+                <div class="notebook-item">
+                    <span class="notebook-name">281 Project: X-Ray Classification (22MB with all visualizations)</span>
+                    <div class="notebook-links">
+                        <a href="html/281_project_notebook_4_17_25.html">View Results</a>
+                        <a href="notebooks/281_project_notebook_4_17_25_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NLP Detail -->
+        <div id="nlp-detail" class="project-detail">
+            <button class="back-button" onclick="showProjects()">← Back to Projects</button>
+            <h2>📝 Natural Language Processing</h2>
+            <p style="color: #666; margin-bottom: 20px;">Text analysis and NLP experiments</p>
+
+            <div class="notebooks-list">
+                <div class="notebook-item">
+                    <span class="notebook-name">266 Final Project Workbook</span>
+                    <div class="notebook-links">
+                        <a href="html/266_project_workbook_final.html">View HTML</a>
+                        <a href="notebooks/266_project_workbook_final_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">Assignment 5</span>
+                    <div class="notebook-links">
+                        <a href="html/Assignment_5.html">View HTML</a>
+                        <a href="notebooks/Assignment_5_original.ipynb">Notebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RAG Detail -->
+        <div id="rag-detail" class="project-detail">
+            <button class="back-button" onclick="showProjects()">← Back to Projects</button>
+            <h2>🤖 RAG System</h2>
+            <p style="color: #666; margin-bottom: 20px;">Retrieval-Augmented Generation prototype</p>
+
+            <div class="notebooks-list">
+                <div class="notebook-item">
+                    <span class="notebook-name">RAG implementation notebooks coming soon</span>
+                    <div class="notebook-links">
+                        <a href="notebooks/">Browse Notebooks</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cloud App Detail -->
+        <div id="cloud-app-detail" class="project-detail">
+            <button class="back-button" onclick="showProjects()">← Back to Projects</button>
+            <h2>☁️ Cloud ML Application</h2>
+            <p style="color: #666; margin-bottom: 20px;">Production ML API with Kubernetes deployment</p>
+
+            <div class="notebooks-list">
+                <div class="notebook-item">
+                    <span class="notebook-name">This project uses Python modules rather than notebooks</span>
+                    <div class="notebook-links">
+                        <a href="../cloud_app_demo/">View Source Code</a>
+                    </div>
+                </div>
+                <div class="notebook-item">
+                    <span class="notebook-name">See README for API documentation and deployment guide</span>
+                    <div class="notebook-links">
+                        <a href="../cloud_app_demo/README.md">View README</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showProject(projectId) {
+            // Hide all views
+            document.getElementById('projects-view').style.display = 'none';
+            document.querySelectorAll('.project-detail').forEach(detail => {
+                detail.classList.remove('active');
+            });
+
+            // Show selected project detail
+            const detailView = document.getElementById(projectId + '-detail');
+            if (detailView) {
+                detailView.classList.add('active');
+            }
+        }
+
+        function showProjects() {
+            // Show main grid
+            document.getElementById('projects-view').style.display = 'block';
+
+            // Hide all detail views
+            document.querySelectorAll('.project-detail').forEach(detail => {
+                detail.classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>

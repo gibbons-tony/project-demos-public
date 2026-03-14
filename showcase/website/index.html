@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Notebooks Showcase</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --dark: #2d3748;
+            --light: #f7fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 0;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .notebook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .notebook-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .notebook-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .notebook-card h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .project-type {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--light);
+            color: var(--dark);
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .metrics {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .metrics h4 {
+            color: var(--dark);
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-item {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 5px 10px;
+            background: white;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .view-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .view-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .view-btn:hover {
+            background: var(--secondary);
+        }
+
+        .view-btn.secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .view-btn.secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Notebook Showcase</h1>
+            <p>Interactive notebooks with preserved results and visualizations</p>
+        </header>
+
+        <div class="notebook-grid" id="notebook-grid">
+            <!-- Notebooks will be inserted here by JavaScript -->
+        </div>
+
+        <footer>
+            <p>Created with Jupyter Notebooks | All content preserved</p>
+            <div style="margin-top: 10px;">
+                <a href="https://github.com/yourusername/project_demos_public">GitHub</a>
+                <a href="https://linkedin.com/in/yourusername">LinkedIn</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Notebook data (will be populated by the script)
+        const notebooks = [
+            {
+                name: "00_setup_and_config",
+                type: "Machine Learning",
+                htmlPath: "../html/00_setup_and_config.html",
+                markdownPath: "../markdown/00_setup_and_config.md",
+                notebookPath: "../notebooks/00_setup_and_config_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "01_synthetic_predictions_calibrated",
+                type: "Machine Learning",
+                htmlPath: "../html/01_synthetic_predictions_calibrated.html",
+                markdownPath: "../markdown/01_synthetic_predictions_calibrated.md",
+                notebookPath: "../notebooks/01_synthetic_predictions_calibrated_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "01_synthetic_predictions_v6",
+                type: "Machine Learning",
+                htmlPath: "../html/01_synthetic_predictions_v6.html",
+                markdownPath: "../markdown/01_synthetic_predictions_v6.md",
+                notebookPath: "../notebooks/01_synthetic_predictions_v6_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "01_synthetic_predictions_v7",
+                type: "Machine Learning",
+                htmlPath: "../html/01_synthetic_predictions_v7.html",
+                markdownPath: "../markdown/01_synthetic_predictions_v7.md",
+                notebookPath: "../notebooks/01_synthetic_predictions_v7_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "01_synthetic_predictions_v8",
+                type: "Machine Learning",
+                htmlPath: "../html/01_synthetic_predictions_v8.html",
+                markdownPath: "../markdown/01_synthetic_predictions_v8.md",
+                notebookPath: "../notebooks/01_synthetic_predictions_v8_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "01_synthetic_predictions",
+                type: "Machine Learning",
+                htmlPath: "../html/01_synthetic_predictions.html",
+                markdownPath: "../markdown/01_synthetic_predictions.md",
+                notebookPath: "../notebooks/01_synthetic_predictions_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "02_forecast_predictions",
+                type: "Machine Learning",
+                htmlPath: "../html/02_forecast_predictions.html",
+                markdownPath: "../markdown/02_forecast_predictions.md",
+                notebookPath: "../notebooks/02_forecast_predictions_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "03_strategy_implementations",
+                type: "Machine Learning",
+                htmlPath: "../html/03_strategy_implementations.html",
+                markdownPath: "../markdown/03_strategy_implementations.md",
+                notebookPath: "../notebooks/03_strategy_implementations_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "04_backtesting_engine",
+                type: "Machine Learning",
+                htmlPath: "../html/04_backtesting_engine.html",
+                markdownPath: "../markdown/04_backtesting_engine.md",
+                notebookPath: "../notebooks/04_backtesting_engine_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "05_strategy_comparison",
+                type: "Machine Learning",
+                htmlPath: "../html/05_strategy_comparison.html",
+                markdownPath: "../markdown/05_strategy_comparison.md",
+                notebookPath: "../notebooks/05_strategy_comparison_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "06_statistical_validation",
+                type: "Machine Learning",
+                htmlPath: "../html/06_statistical_validation.html",
+                markdownPath: "../markdown/06_statistical_validation.md",
+                notebookPath: "../notebooks/06_statistical_validation_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "07_feature_importance",
+                type: "Machine Learning",
+                htmlPath: "../html/07_feature_importance.html",
+                markdownPath: "../markdown/07_feature_importance.md",
+                notebookPath: "../notebooks/07_feature_importance_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "08_sensitivity_analysis",
+                type: "Machine Learning",
+                htmlPath: "../html/08_sensitivity_analysis.html",
+                markdownPath: "../markdown/08_sensitivity_analysis.md",
+                notebookPath: "../notebooks/08_sensitivity_analysis_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "09_strategy_results_summary",
+                type: "Machine Learning",
+                htmlPath: "../html/09_strategy_results_summary.html",
+                markdownPath: "../markdown/09_strategy_results_summary.md",
+                notebookPath: "../notebooks/09_strategy_results_summary_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "10_paired_scenario_analysis",
+                type: "Machine Learning",
+                htmlPath: "../html/10_paired_scenario_analysis.html",
+                markdownPath: "../markdown/10_paired_scenario_analysis.md",
+                notebookPath: "../notebooks/10_paired_scenario_analysis_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "281_project_notebook_4_17_25",
+                type: "Machine Learning",
+                htmlPath: "../html/281_project_notebook_4_17_25.html",
+                markdownPath: "../markdown/281_project_notebook_4_17_25.md",
+                notebookPath: "../notebooks/281_project_notebook_4_17_25_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_01_prediction_loading",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_01_prediction_loading.html",
+                markdownPath: "../markdown/diagnostic_01_prediction_loading.md",
+                notebookPath: "../notebooks/diagnostic_01_prediction_loading_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_02_backtest_trace",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_02_backtest_trace.html",
+                markdownPath: "../markdown/diagnostic_02_backtest_trace.md",
+                notebookPath: "../notebooks/diagnostic_02_backtest_trace_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_03_strategy_decisions",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_03_strategy_decisions.html",
+                markdownPath: "../markdown/diagnostic_03_strategy_decisions.md",
+                notebookPath: "../notebooks/diagnostic_03_strategy_decisions_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_04_fixed_strategies",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_04_fixed_strategies.html",
+                markdownPath: "../markdown/diagnostic_04_fixed_strategies.md",
+                notebookPath: "../notebooks/diagnostic_04_fixed_strategies_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_05_single_strategy_test",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_05_single_strategy_test.html",
+                markdownPath: "../markdown/diagnostic_05_single_strategy_test.md",
+                notebookPath: "../notebooks/diagnostic_05_single_strategy_test_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_06_all_strategies_test",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_06_all_strategies_test.html",
+                markdownPath: "../markdown/diagnostic_06_all_strategies_test.md",
+                notebookPath: "../notebooks/diagnostic_06_all_strategies_test_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_07_monotonicity_test",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_07_monotonicity_test.html",
+                markdownPath: "../markdown/diagnostic_07_monotonicity_test.md",
+                notebookPath: "../notebooks/diagnostic_07_monotonicity_test_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_08_check_prediction_usage",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_08_check_prediction_usage.html",
+                markdownPath: "../markdown/diagnostic_08_check_prediction_usage.md",
+                notebookPath: "../notebooks/diagnostic_08_check_prediction_usage_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_100_algorithm_validation",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_100_algorithm_validation.html",
+                markdownPath: "../markdown/diagnostic_100_algorithm_validation.md",
+                notebookPath: "../notebooks/diagnostic_100_algorithm_validation_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_11_ev_calculation_trace",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_11_ev_calculation_trace.html",
+                markdownPath: "../markdown/diagnostic_11_ev_calculation_trace.md",
+                notebookPath: "../notebooks/diagnostic_11_ev_calculation_trace_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_12_fixed_strategy_validation",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_12_fixed_strategy_validation.html",
+                markdownPath: "../markdown/diagnostic_12_fixed_strategy_validation.md",
+                notebookPath: "../notebooks/diagnostic_12_fixed_strategy_validation_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_13_comprehensive_grid_search",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_13_comprehensive_grid_search.html",
+                markdownPath: "../markdown/diagnostic_13_comprehensive_grid_search.md",
+                notebookPath: "../notebooks/diagnostic_13_comprehensive_grid_search_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_16_optuna_with_params",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_16_optuna_with_params.html",
+                markdownPath: "../markdown/diagnostic_16_optuna_with_params.md",
+                notebookPath: "../notebooks/diagnostic_16_optuna_with_params_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_17_paradox_analysis",
+                type: "Machine Learning",
+                htmlPath: "../html/diagnostic_17_paradox_analysis.html",
+                markdownPath: "../markdown/diagnostic_17_paradox_analysis.md",
+                notebookPath: "../notebooks/diagnostic_17_paradox_analysis_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "diagnostic_forecast_coverage",
+                type: "RAG/LLM",
+                htmlPath: "../html/diagnostic_forecast_coverage.html",
+                markdownPath: "../markdown/diagnostic_forecast_coverage.md",
+                notebookPath: "../notebooks/diagnostic_forecast_coverage_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "trading_prediction_analysis_multi_model",
+                type: "Machine Learning",
+                htmlPath: "../html/trading_prediction_analysis_multi_model.html",
+                markdownPath: "../markdown/trading_prediction_analysis_multi_model.md",
+                notebookPath: "../notebooks/trading_prediction_analysis_multi_model_clean.ipynb",
+                metrics: {}
+            },
+            {
+                name: "trading_prediction_analysis_original_11_11_25",
+                type: "Machine Learning",
+                htmlPath: "../html/trading_prediction_analysis_original_11_11_25.html",
+                markdownPath: "../markdown/trading_prediction_analysis_original_11_11_25.md",
+                notebookPath: "../notebooks/trading_prediction_analysis_original_11_11_25_clean.ipynb",
+                metrics: {}
+            },
+        ];
+
+        // Function to create notebook cards
+        function createNotebookCard(notebook) {
+            const card = document.createElement('div');
+            card.className = 'notebook-card';
+
+            // Format name
+            const displayName = notebook.name
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, c => c.toUpperCase());
+
+            // Build metrics HTML
+            let metricsHtml = '';
+            if (notebook.metrics && Object.keys(notebook.metrics).length > 0) {
+                metricsHtml = '<div class="metrics"><h4>Performance Metrics</h4>';
+                for (const [key, value] of Object.entries(notebook.metrics)) {
+                    const formattedValue = value < 1 ? (value * 100).toFixed(1) + '%' : value.toFixed(3);
+                    metricsHtml += `<span class="metric-item">${key}: <span class="metric-value">${formattedValue}</span></span>`;
+                }
+                metricsHtml += '</div>';
+            }
+
+            card.innerHTML = `
+                <h3>${displayName}</h3>
+                <span class="project-type">${notebook.type}</span>
+                ${metricsHtml}
+                <div class="view-options">
+                    <a href="${notebook.htmlPath}" class="view-btn" target="_blank">View HTML</a>
+                    <a href="${notebook.notebookPath}" class="view-btn secondary" target="_blank">Clean Notebook</a>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Populate the grid
+        const grid = document.getElementById('notebook-grid');
+        notebooks.forEach(notebook => {
+            grid.appendChild(createNotebookCard(notebook));
+        });
+    </script>
+</body>
+</html>
