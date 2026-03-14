@@ -1,6 +1,29 @@
+<div align="center">
+
 # UC Berkeley MIDS - Technical Project Portfolio
 
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![UC Berkeley](https://img.shields.io/badge/UC%20Berkeley-MIDS-003262.svg)](https://www.ischool.berkeley.edu/programs/mids)
+[![Machine Learning](https://img.shields.io/badge/ML-Production%20Systems-orange.svg)](https://github.com/gibbons-tony/project-demos-public)
+
+### 5 Production ML Systems | Medical AI to Algorithmic Trading
+
 *Spring 2025 | Mark Gibbons*
+
+</div>
+
+---
+
+## 🚀 Quick Navigation
+
+| Project | Description | Accuracy/Metric | Documentation |
+|---------|-------------|-----------------|---------------|
+| 🏥 **Medical AI** | Chest X-ray classification with interpretability | 91.2% accuracy | [→ Full Study](PROJECT_1_COMPUTER_VISION_XRAY_REVISED.md) |
+| 📊 **Financial NLP** | Sentiment analysis with self-training | 88.1% (60% labels) | [→ Full Study](PROJECT_2_NLP_SENTIMENT_ANALYSIS_REVISED.md) |
+| 🔍 **RAG System** | Enterprise knowledge with citations | 73% less hallucination | [→ Full Study](PROJECT_3_RAG_SYSTEM_REVISED.md) |
+| ☁️ **Cloud ML** | Kubernetes platform at scale | 8,400 req/sec | [→ Full Study](PROJECT_4_CLOUD_ML_API_REVISED.md) |
+| 📈 **AI Trading** | Algorithmic commodity trading | 23.7% returns | [→ Full Study](PROJECT_5_CAPSTONE_TRADING_REVISED.md) |
 
 ---
 
